@@ -22,6 +22,8 @@
 #include "config.h"
 #include "audio_manager.h"
 #include "text_shape.h"
+#define I18N_IMPL
+#include "i18n.h"
 #include "text_wrap.h"
 #include "rgba.h"
 
@@ -136,6 +138,27 @@ TTF_Font* GFX_fallbackFontFor(TTF_Font* primary) {
 // drawn with the Arabic font, which also covers Latin/digits — so a mixed
 // Arabic+Latin string needs no per-run compositing. Falls back to `primary`
 // (tofu, as before) if the Arabic font is unavailable.
+// UI language: the dictionary is (re)loaded lazily the first time text is drawn after CFG_getLanguage() changes,
+// so every app that links api.c follows the setting without a startup hook.
+static int i18n_lang_loaded = -1;
+static const char* tr(const char* s) {
+	int lang = CFG_getLanguage();
+	if (lang != i18n_lang_loaded) {
+		if (__sync_bool_compare_and_swap(&i18n_lang_loaded, i18n_lang_loaded, lang)) {
+			const char* code = I18N_langCode(lang);
+			char path[MAX_PATH];
+			if (code)
+				snprintf(path, sizeof(path), "%s/lang/%s.lang", RES_PATH, code);
+			I18N_loadFile(code ? path : NULL);
+		}
+	}
+	return I18N_tr(s);
+}
+
+const char* GFX_translate(const char* s) {
+	return s ? tr(s) : s;
+}
+
 static SDL_Surface* apply_text_alpha(SDL_Surface* surf, Uint8 a) {
 	if (surf && a < 255) {
 		SDL_SetSurfaceBlendMode(surf, SDL_BLENDMODE_BLEND);
@@ -147,6 +170,7 @@ static SDL_Surface* apply_text_alpha(SDL_Surface* surf, Uint8 a) {
 static SDL_Surface* render_text_internal(TTF_Font* primary, const char* text, SDL_Color color) {
 	if (!primary || !text || !text[0])
 		return NULL;
+	text = tr(text);
 	Uint8 alpha = color.a ? color.a : 255; // an alpha-less SDL_Color literal means opaque
 	color.a = 255;
 	if (!TextShape_hasArabic(text))
@@ -170,6 +194,7 @@ void GFX_measureText(TTF_Font* primary, const char* utf8, int* w, int* h) {
 		*h = 0;
 	if (!primary || !utf8 || !utf8[0])
 		return;
+	utf8 = tr(utf8);
 	if (!TextShape_hasArabic(utf8)) {
 		TTF_SizeUTF8(primary, utf8, w, h);
 		return;
@@ -187,6 +212,7 @@ SDL_Surface* GFX_renderTextWrapped(TTF_Font* primary, const char* utf8, SDL_Colo
 								   uint32_t wrap_w) {
 	if (!primary || !utf8 || !utf8[0])
 		return NULL;
+	utf8 = tr(utf8);
 	Uint8 alpha = color.a ? color.a : 255; // an alpha-less SDL_Color literal means opaque
 	color.a = 255;
 	if (!TextShape_hasArabic(utf8))
@@ -429,6 +455,11 @@ static void GFX_clearTextCache(void) {
 	}
 	text_cache_lru = 0;
 	fitCacheForget(NULL);
+}
+
+void GFX_reloadLanguage(void) {
+	i18n_lang_loaded = -1;
+	GFX_clearTextCache();
 }
 
 void GFX_forgetFontText(TTF_Font* font) {
@@ -1249,12 +1280,13 @@ int GFX_truncateText(TTF_Font* font, const char* in_name, char* out_name, size_t
 					 int padding) {
 	if (!out_name || out_size == 0)
 		return 0;
+	in_name = tr(in_name);
 	return TextWrap_truncate(GFX_measureWidth, font, in_name, out_name, out_size, max_width, padding);
 }
 int GFX_getTextWidth(TTF_Font* font, const char* in_name, char* out_name, size_t out_size, int max_width,
 					 int padding) {
 	int text_width;
-	snprintf(out_name, out_size, "%s", in_name);
+	snprintf(out_name, out_size, "%s", tr(in_name));
 	GFX_measureText(font, out_name, &text_width, NULL);
 	text_width += padding;
 
@@ -2696,6 +2728,7 @@ char** GFX_getHardwareHintPairs(IndicatorType show_setting) {
 void GFX_blitText(TTF_Font* font, const char* str, int leading, SDL_Color color, SDL_Surface* dst, SDL_Rect* dst_rect) {
 	if (dst_rect == NULL)
 		dst_rect = &(SDL_Rect){0, 0, dst->w, dst->h};
+	str = tr(str); // whole text first: multi-line entries are keyed on the full string
 
 	const char* lines[MAX_TEXT_LINES];
 	int count = 0;

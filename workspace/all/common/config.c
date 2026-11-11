@@ -126,6 +126,7 @@ void CFG_defaults(NextUISettings* cfg) {
 		.disableSleep = CFG_DEFAULT_DISABLE_SLEEP,
 		.sshOnBoot = CFG_DEFAULT_SSH_ON_BOOT,
 		.debugLogging = CFG_DEFAULT_DEBUG_LOGGING,
+		.language = CFG_DEFAULT_LANGUAGE,
 		.buttonLayout = CFG_DEFAULT_BUTTON_LAYOUT,
 		.hintLabels = CFG_DEFAULT_HINT_LABELS,
 	};
@@ -455,6 +456,10 @@ void CFG_init(FontLoad_callback_t cb, ColorSet_callback_t ccb) {
 			}
 			if (sscanf(line, "debugLogging=%i", &temp_value) == 1) {
 				CFG_setDebugLogging((bool)temp_value);
+				continue;
+			}
+			if (sscanf(line, "language=%i", &temp_value) == 1) {
+				CFG_setLanguage(temp_value);
 				continue;
 			}
 			if (sscanf(line, "buttonlayout=%i", &temp_value) == 1) {
@@ -1246,6 +1251,15 @@ void CFG_setDebugLogging(bool enable) {
 	CFG_sync();
 }
 
+int CFG_getLanguage(void) {
+	return settings.language;
+}
+
+void CFG_setLanguage(int lang) {
+	settings.language = (lang == 1) ? 1 : 0; // only English and Simplified Chinese exist
+	CFG_sync();
+}
+
 int CFG_getButtonLayout(void) {
 	return settings.buttonLayout;
 }
@@ -1388,6 +1402,8 @@ void CFG_get(const char* key, char* value) {
 		sprintf(value, "%i", (int)(CFG_getSSHOnBoot()));
 	} else if (strcmp(key, "debugLogging") == 0) {
 		sprintf(value, "%i", (int)(CFG_getDebugLogging()));
+	} else if (strcmp(key, "language") == 0) {
+		sprintf(value, "%i", CFG_getLanguage());
 	} else if (strcmp(key, "buttonlayout") == 0) {
 		sprintf(value, "%i", CFG_getButtonLayout());
 	} else if (strcmp(key, "hintlabels") == 0) {
@@ -1493,6 +1509,7 @@ static int CFG_serialize(char* buf, size_t cap) {
 	EMIT("disableSleep=%i\n", settings.disableSleep);
 	EMIT("sshOnBoot=%i\n", settings.sshOnBoot);
 	EMIT("debugLogging=%i\n", settings.debugLogging);
+	EMIT("language=%i\n", settings.language);
 	EMIT("buttonlayout=%i\n", settings.buttonLayout);
 	EMIT("hintlabels=%i\n", settings.hintLabels);
 #undef EMIT
@@ -1737,6 +1754,7 @@ void CFG_print(void) {
 	printf("\t\"disableSleep\": %i,\n", settings.disableSleep);
 	printf("\t\"sshOnBoot\": %i,\n", settings.sshOnBoot);
 	printf("\t\"debugLogging\": %i,\n", settings.debugLogging);
+	printf("\t\"language\": %i,\n", settings.language);
 	printf("\t\"buttonlayout\": %i,\n", settings.buttonLayout);
 	printf("\t\"hintlabels\": %i,\n", settings.hintLabels);
 

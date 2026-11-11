@@ -234,6 +234,7 @@ typedef struct
 	bool debugLogging; // persist app/game logs to .userdata/<plat>/logs (off = tmpfs only)
 
 	// Input
+	int language; // UI language: 0 English, 1 Simplified Chinese (see i18n.h I18N_LANG_*)
 	int buttonLayout; // BUTTON_LAYOUT_NINTENDO / BUTTON_LAYOUT_XBOX (A<->B, X<->Y everywhere; applies at next boot)
 	bool hintLabels;  // true: hints show the printed cap you press (only differs from logical when layout is Xbox)
 
@@ -332,6 +333,7 @@ typedef struct
 
 // Input defaults
 #define CFG_DEFAULT_BUTTON_LAYOUT BUTTON_LAYOUT_NINTENDO
+#define CFG_DEFAULT_LANGUAGE 0
 #define CFG_DEFAULT_HINT_LABELS true
 
 void CFG_init(FontLoad_callback_t fontCallback, ColorSet_callback_t ccb);
@@ -563,6 +565,8 @@ void CFG_setDebugLogging(bool enable);
 
 // Button layout (Nintendo / Xbox) and whether hints show the printed cap.
 // Read once at process start by api.c; both take effect at the next boot.
+int CFG_getLanguage(void);
+void CFG_setLanguage(int lang);
 int CFG_getButtonLayout(void);
 void CFG_setButtonLayout(int layout);
 bool CFG_getHintLabels(void);

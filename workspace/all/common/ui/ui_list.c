@@ -1,3 +1,4 @@
+#include "i18n.h"
 #include <stdio.h>
 #include <string.h>
 #include "ui_list.h"
@@ -672,7 +673,7 @@ void UI_renderSettingsPageEx(SDL_Surface* screen, ListLayout* layout,
 		const char* display_ptr = NULL;
 		if (item->value) {
 			if (sel && item->cycleable)
-				snprintf(display_val, sizeof(display_val), "< %s >", item->value);
+				snprintf(display_val, sizeof(display_val), "< %s >", T(item->value)); // translate before the arrows are added
 			else
 				snprintf(display_val, sizeof(display_val), "%s", item->value);
 			display_ptr = display_val;

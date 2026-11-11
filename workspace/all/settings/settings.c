@@ -315,6 +315,8 @@ static SettingItem* home_style_item = NULL;
 static const char* rumble_strength_labels[] = {"Light", "Normal", "Strong"};
 static int rumble_strength_values[] = {VIB_LEVEL_LIGHT, VIB_LEVEL_NORMAL, VIB_LEVEL_STRONG};
 
+static const char* language_labels[] = {"English", "简体中文"};
+static int language_values[] = {0, 1};
 static const char* button_layout_labels[] = {"Nintendo", "Xbox"};
 static int button_layout_values[] = {BUTTON_LAYOUT_NINTENDO, BUTTON_LAYOUT_XBOX};
 static const char* hint_labels_labels[] = {"Layout letters", "Printed caps"};
@@ -1005,6 +1007,16 @@ static void reset_haptics(void) {
 static void sync_hint_labels_visibility(void) {
 	if (hint_labels_item)
 		hint_labels_item->visible = (CFG_getButtonLayout() == BUTTON_LAYOUT_XBOX) ? 1 : 0;
+}
+static int get_language(void) {
+	return CFG_getLanguage();
+}
+static void set_language(int v) {
+	CFG_setLanguage(v);
+	GFX_reloadLanguage();
+}
+static void reset_language(void) {
+	set_language(CFG_DEFAULT_LANGUAGE);
 }
 static int get_button_layout(void) {
 	return CFG_getButtonLayout();
@@ -2195,6 +2207,9 @@ static void build_menu_tree(const DeviceInfo* dev) {
 			"Suspend timeout", "Time before device goes to sleep after screen is off (5-600s)",
 			sleep_timeout_labels, SLEEP_TIMEOUT_COUNT, sleep_timeout_values, get_suspend_timeout, set_suspend_timeout, reset_suspend_timeout);
 	}
+	system_items[idx++] = (SettingItem)ITEM_CYCLE_INIT(
+		"Language", "Language of the menus and settings",
+		language_labels, 2, language_values, get_language, set_language, reset_language);
 	system_items[idx++] = (SettingItem)ITEM_CYCLE_INIT(
 		"Haptic feedback", "Enable or disable haptic feedback on certain actions in the OS",
 		on_off_labels, 2, on_off_values, get_haptics, set_haptics, reset_haptics);

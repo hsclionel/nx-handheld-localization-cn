@@ -203,3 +203,12 @@ cc -std=gnu99 -Wall -Werror -fsanitize=address -g -I.. -o /tmp/nx_test_file_util
 /tmp/nx_test_file_util
 cc -std=gnu99 -Wall -Werror -fsanitize=address -g -I.. -o /tmp/nx_test_str_trim test_str_trim.c
 /tmp/nx_test_str_trim
+cc -std=gnu99 -Wall -Werror -fsanitize=address,undefined -g -o /tmp/nx_test_i18n test_i18n.c
+/tmp/nx_test_i18n
+cc -std=gnu99 -Wall -Werror -fsanitize=address,undefined -g -o /tmp/nx_test_pinyin test_pinyin.c
+/tmp/nx_test_pinyin
+PLAT_S="-Wno-deprecated-declarations -I.. -I../../../tg5040/platform -DPLATFORM=\"tg5040\""
+cc -std=gnu99 -Wall -Werror -fsanitize=address -g -o /tmp/nx_test_scraper_serial ../../scraper/scraper_serial.c test_scraper_serial.c
+/tmp/nx_test_scraper_serial
+cc -std=gnu99 -Wall -Werror $PLAT_S -fsanitize=address -g -o /tmp/nx_test_scraper_search ../../scraper/scraper_search.c ../../scraper/scraper_serial.c ../../scraper/scraper_names.c ../../scraper/scraper_parse.c ../cjson/cJSON.c ../utils.c test_scraper_search.c
+/tmp/nx_test_scraper_search

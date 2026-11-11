@@ -352,6 +352,11 @@ void GFX_setFontReloadHook(void (*hook)(void));
 SDL_Surface* GFX_renderText(TTF_Font* primary, const char* utf8, SDL_Color color);
 void GFX_measureText(TTF_Font* primary, const char* utf8, int* w, int* h);
 SDL_Surface* GFX_renderTextWrapped(TTF_Font* primary, const char* utf8, SDL_Color color, uint32_t wrap_w);
+// Re-read the UI language (CFG_getLanguage) and drop cached text. Call after CFG_setLanguage in a running app.
+void GFX_reloadLanguage(void);
+// `s` in the UI language (the dictionary entry, or `s` itself). For code that measures, splits or changes the
+// case of a label before drawing it, so the drawn text and its layout agree.
+const char* GFX_translate(const char* s);
 
 // in_name cut with "..." to max_width into out_name (out_size bytes, never overrun); returns final width
 int GFX_truncateText(TTF_Font* font, const char* in_name, char* out_name, size_t out_size, int max_width, int padding);

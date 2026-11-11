@@ -23,6 +23,36 @@ static void display(const char* dir, const char* want) {
 	}
 }
 
+static void term(const char* file, const char* want) {
+	char out[128];
+	Scraper_searchTerm(file, out, sizeof(out));
+	if (strcmp(out, want) != 0) {
+		fprintf(stderr, "FAIL: search term of '%s' = '%s', want '%s'\n", file, out, want);
+		assert(0);
+	}
+}
+
+static void test_search_term(void) {
+	term("Advance Wars.gba", "Advance Wars");
+	term("/Roms/GBA/Advance Wars (USA).gba", "Advance Wars");
+	term("025_恶魔城-晓月圆舞曲[完美汉化](v1.2).gba", "恶魔城-晓月圆舞曲");
+	term("001_口袋妖怪_绿宝石[汉化v1.2].gba", "口袋妖怪 绿宝石");
+	term("最终幻想7 (简).chd", "最终幻想7");
+	term("三国志 孔明传 汉化版.gba", "三国志 孔明传");
+	term("宝可梦解放 v2.1.1 汉化修订版.gba", "宝可梦解放 v2.1.1 汉化修订版"); // a tag inside the title is left alone
+	term("【中文】超级马里奥 Ver.1.2.gba", "超级马里奥");
+	term("热血物语EX 加强版.gba", "热血物语EX 加强版"); // 加强版 belongs to the title
+	term("1942.gba", "1942");						   // a bare number is not a sort prefix
+	term("12. Sonic.gba", "Sonic");
+	term("Game v1.2.gba", "Game");
+	term("Game.v1.2", "Game.v1.2"); // ".2" is not an extension
+	term("Hack [v1.0] (Hack).gba", "Hack");
+	term("[Hack].gba", "[Hack]"); // cleaning removed everything, so the plain stem
+	term("(a).gba", "(a)");
+	term("", "");
+	assert(Scraper_hasNonAscii("恶魔城.gba") && !Scraper_hasNonAscii("Castlevania.gba") && Scraper_hasNonAscii("Pok\xC3\xA9mon"));
+}
+
 int main(void) {
 	tag("Game Boy (GB)", "GB");
 	tag("01) Game Boy (GB)", "GB");
@@ -61,5 +91,6 @@ int main(void) {
 	assert(strcmp(dir, "/sd/Roms/PlayStation (PS)") == 0 && strcmp(key, "FF7") == 0);
 
 	printf("test_scraper_names: all tests passed\n");
+	test_search_term();
 	return 0;
 }

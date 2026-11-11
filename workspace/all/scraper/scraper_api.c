@@ -1,5 +1,6 @@
 #include "scraper_api.h"
 #include "scraper_parse.h"
+#include "scraper_search.h"
 #include "http.h"
 #include "cjson/cJSON.h"
 #include "utils.h"
@@ -14,9 +15,12 @@
 #include <unistd.h>
 #include <zlib.h>
 
+#ifndef SS_API_BASE // overridable at build time to test against a local mock server
 #define SS_API_BASE "https://api.screenscraper.fr/api2"
+#endif
 #define SS_SOFTNAME "nxredux-scraper"
 #define SS_RATE_LIMIT_MS 1200 // 1.2 seconds between requests
+#define SS_CRC_MAX_BYTES (128L * 1024 * 1024)
 
 // Dev credentials (XOR key 0x5A) come from the git-ignored ss_credentials.h,
 // generated at build time by scripts/gen-ss-credentials.sh from the
@@ -102,6 +106,10 @@ static bool computeCRC32(const char* filepath, uint32_t* out_crc, long* out_size
 	fseek(f, 0, SEEK_END);
 	*out_size = ftell(f);
 	fseek(f, 0, SEEK_SET);
+	if (*out_size > SS_CRC_MAX_BYTES) { // a disc image: hashing it takes minutes on this CPU, and the serial finds it instead
+		fclose(f);
+		return false;
+	}
 	uLong crc = crc32(0L, Z_NULL, 0);
 	unsigned char buf[8192];
 	size_t n;
@@ -112,26 +120,33 @@ static bool computeCRC32(const char* filepath, uint32_t* out_crc, long* out_size
 	return true;
 }
 
-// Parse game info from API JSON response
-static bool parseSearchResponse(HTTP_Response* resp, ScraperGameInfo* info) {
+static bool name_search_enabled = true;
+
+void ScraperAPI_setNameSearch(bool on) {
+	name_search_enabled = on;
+}
+
+// Transport for the lookup chain in scraper_search.c.
+static char* httpGetBody(const char* url, void* ctx) {
+	(void)ctx;
+	HTTP_Response* resp = HTTP_get(url);
 	if (!resp)
-		return false;
+		return NULL;
 	if (resp->http_status != 200 || !resp->data) {
 		HTTP_freeResponse(resp);
-		return false;
+		return NULL;
 	}
-
-	bool found = ScraperParse_gameInfo(resp->data, info);
+	char* body = strdup(resp->data);
 	HTTP_freeResponse(resp);
-	if (!found)
-		return false;
+	return body;
+}
 
-	// which media were found, not their URLs: ScreenScraper's carry the dev and user passwords as query parameters
-	LOG_info("Scraper: game='%s' ss=%s box=%s box2d=%s wheel=%s\n", info->game_name,
-			 info->screenshot_url[0] ? "yes" : "no", info->boxart_url[0] ? "yes" : "no",
-			 info->boxart2d_url[0] ? "yes" : "no", info->wheel_url[0] ? "yes" : "no");
+static char* ssUrlEncode(const char* s) {
+	return HTTP_urlEncode(s);
+}
 
-	return true;
+static void noteMatch(const char* how) {
+	LOG_info("Scraper: matched by %s\n", how);
 }
 
 bool ScraperAPI_search(const char* rom_filename, const char* rom_path,
@@ -142,61 +157,42 @@ bool ScraperAPI_search(const char* rom_filename, const char* rom_path,
 	memset(info, 0, sizeof(ScraperGameInfo));
 	info->found = false;
 
-	// URL-encode the filename (with extension for romnom)
-	char* encoded_name = HTTP_urlEncode(rom_filename);
-	if (!encoded_name)
-		return false;
-
-	// Decode dev credentials
 	char devid[64], devpass[64];
 	ss_decodeDevCredentials(devid, devpass);
-
-	// Build base API URL (filename only)
-	char url[2048];
-	int base_len = snprintf(url, sizeof(url),
-							"%s/jeuInfos.php?devid=%s&devpassword=%s&softname=%s"
-							"&romnom=%s&systemeid=%d&output=json",
-							SS_API_BASE, devid, devpass, SS_SOFTNAME,
-							encoded_name, system_id);
-
-	// Append user credentials if configured
-	if (base_len > 0 && base_len < (int)sizeof(url) &&
-		ss_username[0] != '\0' && ss_password[0] != '\0') {
+	char auth[512];
+	int n = snprintf(auth, sizeof(auth), "devid=%s&devpassword=%s&softname=%s", devid, devpass, SS_SOFTNAME);
+	// user credentials raise the rate limits
+	if (n > 0 && n < (int)sizeof(auth) && ss_username[0] != '\0' && ss_password[0] != '\0') {
 		char* enc_user = HTTP_urlEncode(ss_username);
 		char* enc_pass = HTTP_urlEncode(ss_password);
-		if (enc_user && enc_pass) {
-			snprintf(url + base_len, sizeof(url) - base_len,
-					 "&ssid=%s&sspassword=%s", enc_user, enc_pass);
-		}
+		if (enc_user && enc_pass)
+			snprintf(auth + n, sizeof(auth) - n, "&ssid=%s&sspassword=%s", enc_user, enc_pass);
 		free(enc_user);
 		free(enc_pass);
 	}
-	free(encoded_name);
 
-	// Save URL length before any CRC append
-	int url_len = strlen(url);
+	ScraperSearchEnv env = {
+		.api_base = SS_API_BASE,
+		.auth = auth,
+		.filename = rom_filename,
+		.rom_path = rom_path,
+		.system_id = system_id,
+		.name_search = name_search_enabled,
+		.crc_max_bytes = 0, // computeCRC32 refuses big files before reading them
+		.http_get = httpGetBody,
+		.rate_limit = ScraperAPI_rateLimit,
+		.file_crc = computeCRC32,
+		.url_encode = ssUrlEncode,
+		.note = noteMatch,
+	};
+	if (!ScraperSearch_find(&env, info))
+		return false;
 
-	// Try 1: search by filename only
-	ScraperAPI_rateLimit();
-	HTTP_Response* resp = HTTP_get(url);
-	if (parseSearchResponse(resp, info))
-		return true;
-
-	// Try 2: fallback with CRC32 + file size for non-standard filenames
-	if (rom_path) {
-		uint32_t crc_val;
-		long file_size;
-		if (computeCRC32(rom_path, &crc_val, &file_size)) {
-			snprintf(url + url_len, sizeof(url) - url_len,
-					 "&crc=%08x&romtaille=%ld", crc_val, file_size);
-			ScraperAPI_rateLimit();
-			resp = HTTP_get(url);
-			if (parseSearchResponse(resp, info))
-				return true;
-		}
-	}
-
-	return false;
+	// which media were found, not their URLs: ScreenScraper's carry the dev and user passwords as query parameters
+	LOG_info("Scraper: game='%s' ss=%s box=%s box2d=%s wheel=%s\n", info->game_name,
+			 info->screenshot_url[0] ? "yes" : "no", info->boxart_url[0] ? "yes" : "no",
+			 info->boxart2d_url[0] ? "yes" : "no", info->wheel_url[0] ? "yes" : "no");
+	return true;
 }
 
 ScraperUserInfo ScraperAPI_fetchUserInfo(void) {

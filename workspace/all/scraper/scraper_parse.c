@@ -3,12 +3,19 @@
 #include <stdio.h>
 #include <string.h>
 
-// Region priority: us > wor > eu > any
-static const char* region_priority[] = {"us", "wor", "eu", NULL};
+// Region priority: us > wor > eu > any, or with Chinese preferred cn > tw > asi > jp > wor > us > eu > any
+static const char* const region_priority_default[] = {"us", "wor", "eu", NULL};
+static const char* const region_priority_chinese[] = {"cn", "tw", "asi", "jp", "wor", "us", "eu", NULL};
+static bool prefer_chinese = false;
+
+void ScraperParse_setPreferChinese(bool on) {
+	prefer_chinese = on;
+}
 
 void ScraperParse_mediaURL(const cJSON* medias, const char** types, int type_count,
 						   char* out_url, int url_size) {
 	out_url[0] = '\0';
+	const char* const* region_priority = prefer_chinese ? region_priority_chinese : region_priority_default;
 
 	for (int t = 0; t < type_count; t++) {
 		// First pass: try each preferred region in priority order
@@ -47,6 +54,33 @@ void ScraperParse_mediaURL(const cJSON* medias, const char** types, int type_cou
 			return;
 		}
 	}
+}
+
+bool ScraperParse_firstGameId(const char* json, char* id, size_t id_size) {
+	if (!json || !id || id_size == 0)
+		return false;
+	cJSON* root = cJSON_Parse(json);
+	if (!root)
+		return false;
+	bool found = false;
+	cJSON* response = cJSON_GetObjectItem(root, "response");
+	cJSON* jeux = response ? cJSON_GetObjectItem(response, "jeux") : NULL;
+	cJSON* game;
+	cJSON_ArrayForEach(game, jeux) {
+		cJSON* gid = cJSON_GetObjectItem(game, "id");
+		if (gid && cJSON_IsString(gid) && gid->valuestring[0] && strlen(gid->valuestring) < id_size) {
+			snprintf(id, id_size, "%s", gid->valuestring);
+			found = true;
+			break;
+		}
+		if (gid && cJSON_IsNumber(gid) && gid->valuedouble > 0) {
+			snprintf(id, id_size, "%.0f", gid->valuedouble);
+			found = true;
+			break;
+		}
+	}
+	cJSON_Delete(root);
+	return found;
 }
 
 bool ScraperParse_gameInfo(const char* json, ScraperGameInfo* info) {

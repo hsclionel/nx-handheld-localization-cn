@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "scraper_api.h"
 #include "scraper_compositor.h"
+#include "scraper_parse.h"
 #include "scraper_prefs.h"
 
 // Up to this size, full colour: the 2D box art and the wheel, big enough for the Backdrop item slot and the List box
@@ -37,18 +38,37 @@ static bool saveVariant(const char* image_path, const char* out_png, const char*
 	return saved;
 }
 
+// The UI language setting (language=1 in minuisettings.txt), read directly: the one-shot fetch mode never
+// initialises the settings module.
+static bool languageIsChinese(void) {
+	char path[MAX_PATH];
+	snprintf(path, sizeof(path), "%s/minuisettings.txt", SHARED_USERDATA_PATH);
+	FILE* f = fopen(path, "r");
+	if (!f)
+		return false;
+	char line[128];
+	bool zh = false;
+	while (fgets(line, sizeof(line), f))
+		if (strncmp(line, "language=", 9) == 0)
+			zh = atoi(line + 9) == 1;
+	fclose(f);
+	return zh;
+}
+
 ScrapeResult scrapeOne(const char* filename, const char* rom_path, int system_id,
 					   const char* out_png, ScrapeProgressCb cb, void* userdata) {
 	mkdir_p(TMP_DIR);
 
 	if (cb)
 		cb("searching", userdata);
+	ScraperPrefs prefs;
+	ScraperPrefs_load(&prefs);
+	ScraperAPI_setNameSearch(prefs.name_search);
+	ScraperParse_setPreferChinese(languageIsChinese());
+
 	ScraperGameInfo info;
 	if (!ScraperAPI_search(filename, rom_path, system_id, &info))
 		return SCRAPE_RESULT_NOTFOUND;
-
-	ScraperPrefs prefs;
-	ScraperPrefs_load(&prefs);
 
 	if (cb)
 		cb("downloading", userdata);

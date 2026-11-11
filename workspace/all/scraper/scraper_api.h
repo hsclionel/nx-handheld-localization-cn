@@ -36,6 +36,9 @@ bool ScraperAPI_hasUserCredentials(void);
 bool ScraperAPI_search(const char* rom_filename, const char* rom_path,
 					   int system_id, ScraperGameInfo* info);
 
+// Allow the title-search fallback (ScraperPrefs name_search). On by default.
+void ScraperAPI_setNameSearch(bool on);
+
 // Download a file from URL to a local path
 // Returns true on success
 bool ScraperAPI_downloadFile(const char* url, const char* dest_path);

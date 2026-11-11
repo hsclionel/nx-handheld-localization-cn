@@ -10,6 +10,8 @@ typedef struct {
 	bool box2d; // .media/boxart2d/
 	bool wheel; // .media/wheel/
 	bool mix;	// .media/mix/<name>.png, built from screenshot + box + wheel
+	bool name_search; // look a game up by its title when file name, checksum and header serial found nothing; ON unless
+					  // name_search=0 is in the file (no menu row: a wrong match is possible, so it can be switched off by hand)
 } ScraperPrefs;
 
 void ScraperPrefs_loadFrom(const char* path, ScraperPrefs* out);

@@ -10,6 +10,7 @@
 
 void ScraperPrefs_loadFrom(const char* path, ScraperPrefs* out) {
 	out->box2d = out->wheel = out->mix = false;
+	out->name_search = true;
 
 	FILE* f = fopen(path, "r");
 	if (!f)
@@ -28,6 +29,8 @@ void ScraperPrefs_loadFrom(const char* path, ScraperPrefs* out) {
 			out->wheel = on;
 		else if (strcmp(key, "mix") == 0)
 			out->mix = on;
+		else if (strcmp(key, "name_search") == 0)
+			out->name_search = on;
 	}
 	fclose(f);
 }
@@ -35,8 +38,9 @@ void ScraperPrefs_loadFrom(const char* path, ScraperPrefs* out) {
 // Replaced whole (tmp + rename), never truncated in place: the scrape worker reads the file for each game while
 // the Download options screen saves it, and a read of a half-written file turned every option off for that game.
 bool ScraperPrefs_saveTo(const char* path, const ScraperPrefs* p) {
-	char buf[64];
-	int len = snprintf(buf, sizeof(buf), "box2d=%d\nwheel=%d\nmix=%d\n", p->box2d, p->wheel, p->mix);
+	char buf[96];
+	int len = snprintf(buf, sizeof(buf), "box2d=%d\nwheel=%d\nmix=%d\nname_search=%d\n", p->box2d, p->wheel, p->mix,
+					  p->name_search);
 	return len > 0 && (size_t)len < sizeof(buf) && writeFileAtomic(path, buf, (size_t)len);
 }
 

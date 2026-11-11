@@ -18,6 +18,30 @@ static void media(const char* json, const char** types, int n, const char* want)
 	cJSON_Delete(arr);
 }
 
+static void test_regions_and_search(void) {
+	const char* json = "[{\"type\":\"box-2D\",\"region\":\"us\",\"url\":\"US\"},{\"type\":\"box-2D\",\"region\":\"jp\",\"url\":\"JP\"},"
+					   "{\"type\":\"box-2D\",\"region\":\"cn\",\"url\":\"CN\"},{\"type\":\"box-2D\",\"region\":\"fr\",\"url\":\"FR\"}]";
+	const char* box[] = {"box-2D"};
+	ScraperParse_setPreferChinese(false);
+	media(json, box, 1, "US");
+	ScraperParse_setPreferChinese(true);
+	media(json, box, 1, "CN");
+	// Chinese preferred but only a Japanese and a French art exist: jp comes before the rest
+	media("[{\"type\":\"box-2D\",\"region\":\"fr\",\"url\":\"FR\"},{\"type\":\"box-2D\",\"region\":\"jp\",\"url\":\"JP\"}]", box, 1, "JP");
+	// no preferred region at all: the first one
+	media("[{\"type\":\"box-2D\",\"region\":\"fr\",\"url\":\"FR\"},{\"type\":\"box-2D\",\"region\":\"de\",\"url\":\"DE\"}]", box, 1, "FR");
+	ScraperParse_setPreferChinese(false);
+	media("[{\"type\":\"box-2D\",\"region\":\"jp\",\"url\":\"JP\"},{\"type\":\"box-2D\",\"region\":\"eu\",\"url\":\"EU\"}]", box, 1, "EU");
+
+	char id[16];
+	assert(ScraperParse_firstGameId("{\"response\":{\"jeux\":[{},{\"id\":\"1234\"},{\"id\":\"9\"}]}}", id, sizeof(id)) && strcmp(id, "1234") == 0);
+	assert(ScraperParse_firstGameId("{\"response\":{\"jeux\":[{\"id\":5678}]}}", id, sizeof(id)) && strcmp(id, "5678") == 0);
+	assert(!ScraperParse_firstGameId("{\"response\":{\"jeux\":[{}]}}", id, sizeof(id)));
+	assert(!ScraperParse_firstGameId("{\"response\":{}}", id, sizeof(id)));
+	assert(!ScraperParse_firstGameId("not json", id, sizeof(id)) && !ScraperParse_firstGameId(NULL, id, sizeof(id)));
+	assert(!ScraperParse_firstGameId("{\"response\":{\"jeux\":[{\"id\":\"123456789012345678\"}]}}", id, 8)); // does not fit
+}
+
 int main(void) {
 	const char* box[] = {"box-3D", "box-2D"};
 	const char* wheel[] = {"wheel-hd", "wheel"};
@@ -92,5 +116,6 @@ int main(void) {
 	assert(!ScraperParse_gameInfo(NULL, &info));
 
 	printf("test_scraper_parse: all tests passed\n");
+	test_regions_and_search();
 	return 0;
 }

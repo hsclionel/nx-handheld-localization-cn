@@ -6,6 +6,16 @@
 #include <stdio.h>
 #include <string.h>
 
+// UI-language lookup from api.c; absent (NULL) in host tests, which then see the English pieces.
+const char* GFX_translate(const char* s) __attribute__((weak));
+static void translateInPlace(char* text, size_t size) {
+	if (GFX_translate && text[0]) {
+		const char* t = GFX_translate(text);
+		if (t && t != text && strcmp(t, text) != 0)
+			snprintf(text, size, "%s", t);
+	}
+}
+
 static void clearText(char* out, size_t size) {
 	if (size)
 		out[0] = '\0';
@@ -61,6 +71,8 @@ int GameInfo_segments(time_t now, time_t last, int seconds, int unlocked, int to
 			GameInfo_whenText(now, last, when, sizeof(when));
 		if (seconds > 0)
 			GameInfo_durationText(seconds, dur, sizeof(dur));
+		translateInPlace(when, sizeof(when));
+		translateInPlace(dur, sizeof(dur));
 		out[n].kind = INFO_SEG_TIME;
 		if (when[0] && dur[0])
 			snprintf(out[n].text, sizeof(out[n].text), "%s - %s", when, dur);

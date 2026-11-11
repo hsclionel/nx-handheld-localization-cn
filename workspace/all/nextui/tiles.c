@@ -272,7 +272,7 @@ float Tiles_fitWordsSp(const char* text, float sp_max, float sp_min, bool bold, 
 		TTF_Font* f = UIFont_get(sp, bold);
 		if (!f)
 			break;
-		snprintf(work, sizeof(work), "%s", text ? text : "");
+		snprintf(work, sizeof(work), "%s", text ? GFX_translate(text) : "");
 		bool fits = true;
 		char* save = NULL;
 		for (char* tok = strtok_r(work, " ", &save); tok && fits; tok = strtok_r(NULL, " ", &save))
@@ -293,7 +293,7 @@ static void layoutLines(TTF_Font* f, const char* text, int max_w, int max_lines,
 	if (max_lines > MAX_LINES)
 		max_lines = MAX_LINES;
 	char buf[LINE_MAX];
-	snprintf(buf, sizeof(buf), "%s", text);
+	snprintf(buf, sizeof(buf), "%s", GFX_translate(text));
 	if (camel_split && textWidth(f, buf) > max_w)
 		Tiles_camelSplit(buf, sizeof(buf));
 	GFX_wrapText(f, buf, max_w, max_lines);
@@ -479,7 +479,7 @@ static int textWidthOrZero(TTF_Font* f, const char* t) {
 void Tiles_longestWord(TTF_Font* f, const char* name, char* out, size_t size) {
 	out[0] = '\0';
 	int best = -1;
-	const char* p = name;
+	const char* p = GFX_translate(name);
 	while (*p) {
 		while (*p == ' ' || *p == '\t')
 			p++;
@@ -1119,6 +1119,7 @@ const char* Tiles_toolIcon(const char* pak_name) {
 		{"PortMaster", "menu_icon_portmaster.png"},
 		{"Cheat Database", "menu_icon_cheats.png"},
 		{"Splore", "menu_icon_splore.png"},
+		{"EmuDrop", "menu_icon_emudrop.png"},
 	};
 	if (!pak_name)
 		return NULL;

@@ -488,7 +488,7 @@ static const char* rowLabel(MenuTabId id) {
 		return MenuTabs_label(id);
 	char* out = labels[id];
 	if (!out[0]) {
-		const char* in = MenuTabs_label(id);
+		const char* in = GFX_translate(MenuTabs_label(id));
 		size_t i = 0;
 		for (; in && in[i] && i + 1 < sizeof(labels[id]); i++)
 			out[i] = (char)toupper((unsigned char)in[i]);

@@ -1,3 +1,54 @@
+# NX Redux: Simplified Chinese build (zh_CN)
+
+This repository is a fork of [nx-redux/nx-handheld](https://github.com/nx-redux/nx-handheld) that adds a
+Simplified Chinese UI and Chinese-friendly game lists. It tracks upstream NX Redux (currently v2.5.1) and
+keeps its changes small so each new release can be rebased onto. The original NX Redux README follows
+below this section.
+
+**简体中文：** 这是 NX Redux 的简体中文版。主菜单、设置、音乐播放器和媒体播放器已经汉化，中文游戏名可以用拼音搜索和排序。游戏内菜单和其他工具仍是英文，主机名也保留英文。目前只在 TrimUI Brick Pro 上测试过。
+
+## What this fork adds
+
+- **Language setting:** Settings > System > Language switches between English and 简体中文 at runtime.
+- **Translation without touching app code:** text is translated where it is drawn and measured
+  (`workspace/all/common/i18n.h`, hooks in `common/api.c`), from a plain dictionary,
+  `skeleton/SYSTEM/res/lang/zh_CN.lang` (English TAB Chinese TAB source file). Entries containing
+  `%d`/`%s` are matched as patterns.
+- **Scope:** main menu, Settings, Music Player and Media Player. The in-game menu, other tools and
+  emulator options stay English, and console names stay English on purpose.
+- **Pinyin:** Chinese game names sort and letter-jump by pinyin initial, and search matches pinyin
+  initials (`tstd` finds 吞食天地) as well as the name (`workspace/all/common/pinyin.h`).
+- **Scraper:** ScreenScraper lookups also try cleaned and Chinese names and ROM serials. No credentials
+  are added.
+- **Music / Media Player:** larger radio buffer and HTTPS (TLS 1.2) fixes, 256 saved stations, a sleep
+  timer, and an ASCII-safe on-screen title in the media player.
+
+## Branches and installing
+
+- `main` and `cn-phase1` hold the same work: upstream `main` plus the commits above.
+- Build as described in [DEV.md](DEV.md) (for the Brick Pro: `make build -f Makefile.toolchain PLATFORM=tg5040`)
+  and replace the matching stock files on an NX Redux SD card: `nextui.elf`, `settings.elf`, the
+  Music Player and Media Player binaries, and `res/lang/zh_CN.lang`, all under `.system/`.
+- An official NX Redux OTA update rewrites `.system/` and brings back the English files. Re-apply this
+  build after updating. Games, saves and user paks are not affected.
+
+## Credits for the Chinese build
+
+- [nx-redux/nx-handheld](https://github.com/nx-redux/nx-handheld) by
+  [mohammadsyuhada](https://github.com/mohammadsyuhada): NX Redux itself, which this fork is built on.
+- [LoveRetro/NextUI](https://github.com/LoveRetro/NextUI) and [shauninman/MinUI](https://github.com/shauninman/MinUI),
+  the projects NX Redux descends from (full upstream credits below).
+- [yjvaselines/nx-redux-cn](https://github.com/yjvaselines/nx-redux-cn): the earlier Chinese fork of
+  NX Redux v2.1.2. Most dictionary entries, the pinyin initial table and the Music Player radio and
+  sleep-timer fixes come from it, re-applied to current upstream code.
+- [mozillazg/python-pinyin](https://github.com/mozillazg/python-pinyin) (MIT): the pinyin data the
+  initial table was built from.
+- [ScreenScraper](https://www.screenscraper.fr/), the artwork database the scraper queries.
+
+Same license as upstream: GNU GPL v3.0.
+
+---
+
 # NX Redux
 
 Custom firmware for TrimUI retro handhelds. NX Redux is a clean, pick-up-and-play way

@@ -1132,6 +1132,47 @@ static void check_idle_exit(void) {
 	}
 }
 
+// Sleep timer: counts listening time (not wall time) and stops playback once
+// the configured number of minutes has been played. Pausing for more than 15 s
+// starts the count over.
+static int64_t auto_sleep_played_ms;
+static int64_t auto_sleep_last_ms;
+static int64_t auto_sleep_idle_since_ms;
+static int64_t auto_sleep_reload_ms;
+
+static void check_auto_sleep(int64_t now) {
+	if (now - auto_sleep_reload_ms >= 2000) {
+		Settings_reloadAutoSleep();
+		auto_sleep_reload_ms = now;
+	}
+	int minutes = Settings_getAutoSleepMinutes();
+	RadioState rs = Radio_getState();
+	bool playing = !sleeping && (rs == RADIO_STATE_PLAYING || rs == RADIO_STATE_CONNECTING ||
+								 rs == RADIO_STATE_BUFFERING || Player_getState() == PLAYER_STATE_PLAYING);
+	int64_t delta = auto_sleep_last_ms ? now - auto_sleep_last_ms : 0;
+	auto_sleep_last_ms = now;
+	if (minutes <= 0) {
+		auto_sleep_played_ms = 0;
+		return;
+	}
+	if (playing) {
+		auto_sleep_idle_since_ms = 0;
+		if (delta > 0 && delta < 5000)
+			auto_sleep_played_ms += delta;
+	} else {
+		if (!auto_sleep_idle_since_ms)
+			auto_sleep_idle_since_ms = now;
+		else if (now - auto_sleep_idle_since_ms > 15000)
+			auto_sleep_played_ms = 0;
+		return;
+	}
+	if (auto_sleep_played_ms >= (int64_t)minutes * 60000) {
+		LOG_info("Sleep timer reached %d min, stopping playback\n", minutes);
+		auto_sleep_played_ms = 0;
+		stop_active_source();
+	}
+}
+
 static void service_tick(void) {
 	attempt_restore();
 	sync_music_volume();
@@ -1161,6 +1202,7 @@ static void service_tick(void) {
 		save_resume_state();
 		local_last_resume_ms = now;
 	}
+	check_auto_sleep(now);
 	if (!sleeping && active_source == MUSIC_SOURCE_PODCAST) {
 		PlayerSnapshot snapshot;
 		if (podcast_waiting_for_seek && !Player_resume()) {

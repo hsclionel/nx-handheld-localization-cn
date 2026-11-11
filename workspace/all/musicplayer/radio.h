@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define RADIO_MAX_STATIONS 32
+#define RADIO_MAX_STATIONS 256
 #define RADIO_MAX_URL 512
 #define RADIO_MAX_NAME 128
 #define RADIO_BUFFER_SIZE (64 * 1024) // 64KB buffer

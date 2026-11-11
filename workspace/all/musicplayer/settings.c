@@ -19,6 +19,8 @@
 // Valid screen off timeout values (in seconds)
 // 0 means off (no auto screen off)
 static const int screen_off_values[] = {60, 90, 120, 0};
+static const int auto_sleep_values[] = {0, 10, 20, 30, 40, 50, 60}; // minutes, 0 = off
+#define AUTO_SLEEP_VALUE_COUNT 7
 #define SCREEN_OFF_VALUE_COUNT 4
 #define DEFAULT_SCREEN_OFF_INDEX 0 // Default to 60s
 
@@ -45,6 +47,7 @@ static bool settings_owner_mode;
 
 static struct {
 	int screen_off_timeout; // seconds, 0 = off
+	int auto_sleep_minutes; // 0 = off
 	bool lyrics_enabled;	// true = show lyrics
 	int bass_filter_hz;		// 0=off, 80, 100, 120, 150, 200
 	int soft_limiter_index; // 0=off, 1=mild, 2=medium, 3=strong
@@ -110,6 +113,7 @@ void Settings_init(void) {
 	// Set defaults
 	current_settings.screen_off_timeout = screen_off_values[DEFAULT_SCREEN_OFF_INDEX];
 	current_settings.lyrics_enabled = true;
+	current_settings.auto_sleep_minutes = 0;
 	current_settings.bass_filter_hz = bass_filter_values[DEFAULT_BASS_FILTER_INDEX];
 	current_settings.soft_limiter_index = DEFAULT_SOFT_LIMITER_INDEX;
 	current_settings.rate_mode_follow = 0;
@@ -132,6 +136,11 @@ void Settings_init(void) {
 					break;
 				}
 			}
+		}
+		if (sscanf(line, "auto_sleep_minutes=%d", &value) == 1) {
+			for (int i = 0; i < AUTO_SLEEP_VALUE_COUNT; i++)
+				if (auto_sleep_values[i] == value)
+					current_settings.auto_sleep_minutes = value;
 		}
 		if (sscanf(line, "lyrics_enabled=%d", &value) == 1) {
 			current_settings.lyrics_enabled = (value != 0);
@@ -191,6 +200,53 @@ void Settings_cycleScreenOffPrev(void) {
 	Settings_save();
 }
 
+static int get_auto_sleep_index(void) {
+	for (int i = 0; i < AUTO_SLEEP_VALUE_COUNT; i++)
+		if (auto_sleep_values[i] == current_settings.auto_sleep_minutes)
+			return i;
+	return 0;
+}
+
+int Settings_getAutoSleepMinutes(void) {
+	return current_settings.auto_sleep_minutes;
+}
+
+void Settings_cycleAutoSleepNext(void) {
+	current_settings.auto_sleep_minutes = auto_sleep_values[(get_auto_sleep_index() + 1) % AUTO_SLEEP_VALUE_COUNT];
+	Settings_save();
+}
+
+void Settings_cycleAutoSleepPrev(void) {
+	current_settings.auto_sleep_minutes =
+		auto_sleep_values[(get_auto_sleep_index() + AUTO_SLEEP_VALUE_COUNT - 1) % AUTO_SLEEP_VALUE_COUNT];
+	Settings_save();
+}
+
+const char* Settings_getAutoSleepDisplayStr(void) {
+	static char text[16];
+	if (current_settings.auto_sleep_minutes == 0)
+		return "Off";
+	snprintf(text, sizeof(text), "%d min", current_settings.auto_sleep_minutes);
+	return text;
+}
+
+// Daemon side: re-read only the sleep timer key (written by the UI process)
+void Settings_reloadAutoSleep(void) {
+	FILE* f = fopen(SETTINGS_FILE, "r");
+	if (!f)
+		return;
+	char line[256];
+	int value;
+	while (fgets(line, sizeof(line), f)) {
+		if (sscanf(line, "auto_sleep_minutes=%d", &value) == 1) {
+			for (int i = 0; i < AUTO_SLEEP_VALUE_COUNT; i++)
+				if (auto_sleep_values[i] == value)
+					current_settings.auto_sleep_minutes = value;
+		}
+	}
+	fclose(f);
+}
+
 const char* Settings_getScreenOffDisplayStr(void) {
 	switch (current_settings.screen_off_timeout) {
 	case 60:
@@ -219,14 +275,15 @@ void Settings_save(void) {
 		return;
 	}
 
-	char preserved[5][256] = {{0}};
+	char preserved[8][256] = {{0}};
 	int preserved_count = 0;
 	FILE* old = fopen(SETTINGS_FILE, "r");
 	char line[256];
 	if (old) {
-		while (preserved_count < 5 && fgets(line, sizeof(line), old)) {
+		while (preserved_count < 8 && fgets(line, sizeof(line), old)) {
 			bool other_owner = settings_owner_mode
-								   ? strncmp(line, "screen_off_timeout=", 19) == 0 || strncmp(line, "lyrics_enabled=", 15) == 0
+								   ? strncmp(line, "screen_off_timeout=", 19) == 0 || strncmp(line, "lyrics_enabled=", 15) == 0 ||
+										 strncmp(line, "auto_sleep_minutes=", 19) == 0
 								   : strncmp(line, "bass_filter_hz=", 15) == 0 || strncmp(line, "soft_limiter=", 13) == 0 ||
 										 strncmp(line, "sample_rate_follow=", 19) == 0 || strncmp(line, "resampler_quality=", 18) == 0 ||
 										 strncmp(line, "buffer_frames=", 14) == 0;
@@ -252,6 +309,7 @@ void Settings_save(void) {
 		} else {
 			fprintf(file, "screen_off_timeout=%d\n", current_settings.screen_off_timeout);
 			fprintf(file, "lyrics_enabled=%d\n", current_settings.lyrics_enabled ? 1 : 0);
+			fprintf(file, "auto_sleep_minutes=%d\n", current_settings.auto_sleep_minutes);
 			for (int i = 0; i < preserved_count; i++)
 				fputs(preserved[i], file);
 		}

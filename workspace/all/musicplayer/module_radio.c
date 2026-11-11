@@ -591,7 +591,7 @@ ModuleExitReason RadioModule_run(SDL_Surface* screen) {
 						snprintf(radio_toast_message, sizeof(radio_toast_message), "Added: %s", station->name);
 						radio_toast_time = SDL_GetTicks();
 					} else {
-						snprintf(radio_toast_message, sizeof(radio_toast_message), "Maximum 32 stations reached");
+						snprintf(radio_toast_message, sizeof(radio_toast_message), "Maximum 256 stations reached");
 						radio_toast_time = SDL_GetTicks();
 					}
 					dirty = 1;

@@ -65,6 +65,27 @@ static bool ffplay_stderr_has_fatal(const char* url) {
 }
 
 // Build argv for ffplay and exec in a forked child. Returns exit status.
+
+// Copy only ASCII bytes of a UTF-8 string, skipping multi-byte sequences.
+static void ffplay_ascii_title(const char* in, char* out, size_t size) {
+	size_t n = 0;
+	if (size == 0)
+		return;
+	for (const unsigned char* p = (const unsigned char*)in; *p && n + 1 < size;) {
+		if (*p < 0x80) {
+			out[n++] = (char)*p++;
+		} else {
+			int len = (*p >= 0xF0) ? 4 : (*p >= 0xE0) ? 3 : (*p >= 0xC0) ? 2 : 1;
+			p++;
+			while (--len > 0 && (*p & 0xC0) == 0x80)
+				p++;
+		}
+	}
+	while (n > 0 && out[n - 1] == ' ')
+		n--;
+	out[n] = '\0';
+}
+
 static int ffplay_exec(FfplayConfig* config, int use_subs) {
 	char* argv[64];
 	int argc = 0;
@@ -177,9 +198,12 @@ static int ffplay_exec(FfplayConfig* config, int use_subs) {
 	}
 
 	// Window title
-	if (config->title[0] != '\0') {
+	// ffplay's OSD font has no CJK glyphs, so keep only the ASCII part of the title
+	char osd_title[256];
+	ffplay_ascii_title(config->title, osd_title, sizeof(osd_title));
+	if (osd_title[0] != '\0') {
 		argv[argc++] = "-window_title";
-		argv[argc++] = config->title;
+		argv[argc++] = osd_title;
 	}
 
 	// Common playback options for all sources

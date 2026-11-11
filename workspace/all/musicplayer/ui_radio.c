@@ -501,7 +501,7 @@ void render_radio_help(SDL_Surface* screen, IndicatorType show_setting, int* hel
 		"",
 		"Notes:",
 		"- MP3, AAC, and M3U8 formats supported",
-		"- Maximum 32 stations",
+		"- Maximum 256 stations",
 		"- Slogan is optional (shown when no song info)",
 		"",
 		"Find more stations at: fmstream.org"};

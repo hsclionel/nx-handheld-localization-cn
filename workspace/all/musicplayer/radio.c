@@ -63,7 +63,7 @@ typedef enum {
 #define RADIO_STATIONS_FILE SHARED_USERDATA_PATH "/music-player/radio/stations.txt"
 
 // Ring buffer for decoded audio
-#define AUDIO_RING_SIZE (SAMPLE_RATE * 2 * 10) // 10 seconds of stereo audio
+#define AUDIO_RING_SIZE (SAMPLE_RATE * 2 * 20) // 20 seconds of stereo audio
 
 // Default radio stations
 static RadioStation default_stations[] = {
@@ -209,7 +209,7 @@ static int radio_ring_count_snapshot(void) {
 
 static void radio_start_playing_if_buffered(void) {
 	if (radio_state_load() == RADIO_STATE_BUFFERING &&
-		radio_ring_count_snapshot() > AUDIO_RING_SIZE * 2 / 3)
+		radio_ring_count_snapshot() > SAMPLE_RATE * 2 * 3)
 		radio_state_store(RADIO_STATE_PLAYING);
 }
 
@@ -1031,6 +1031,7 @@ static void* hls_stream_thread_func(void* arg) {
 				// decoded at once and the overflow is silently dropped by
 				// radio_ring_write. Pause here until the callback drains the ring.
 				while (radio_ring_count_snapshot() > AUDIO_RING_SIZE * 9 / 10 && !radio.should_stop) {
+					radio_start_playing_if_buffered();
 					usleep(20000); // 20ms
 				}
 				if (radio.should_stop)
@@ -2041,7 +2042,13 @@ int Radio_getAudioSamples(int16_t* buffer, int max_samples) {
 	// But continue to provide remaining audio to avoid abrupt silence
 	if (radio_state_load() == RADIO_STATE_PLAYING && radio.audio_ring_count < SAMPLE_RATE * 2 * 2) {
 		radio_state_store(RADIO_STATE_BUFFERING);
-		// Don't return early - continue to drain remaining buffer smoothly
+	}
+
+	// While buffering, hold the ring and play silence so it can refill
+	if (radio_state_load() != RADIO_STATE_PLAYING) {
+		memset(buffer, 0, max_samples * sizeof(int16_t));
+		pthread_mutex_unlock(&radio.audio_mutex);
+		return max_samples;
 	}
 
 	int samples_to_read = max_samples;

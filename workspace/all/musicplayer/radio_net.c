@@ -75,6 +75,9 @@ int radio_net_tls_setup(mbedtls_net_context* net, mbedtls_ssl_context* ssl,
 	}
 	if (ret == 0) {
 		tls_verify(conf);
+		// Many radio CDNs break on TLS 1.3 handshakes with this mbedtls build
+		mbedtls_ssl_conf_min_tls_version(conf, MBEDTLS_SSL_VERSION_TLS1_2);
+		mbedtls_ssl_conf_max_tls_version(conf, MBEDTLS_SSL_VERSION_TLS1_2);
 		mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, ctr_drbg);
 		step = "mbedtls_ssl_setup";
 		ret = mbedtls_ssl_setup(ssl, conf);

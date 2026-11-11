@@ -13,15 +13,16 @@
 
 // Settings menu items
 #define SETTINGS_ITEM_SCREEN_OFF 0
-#define SETTINGS_ITEM_BALANCE 1
-#define SETTINGS_ITEM_BASS_FILTER 2
-#define SETTINGS_ITEM_SOFT_LIMITER 3
-#define SETTINGS_ITEM_SAMPLE_RATE 4
-#define SETTINGS_ITEM_RESAMPLER 5
-#define SETTINGS_ITEM_BUFFER 6
-#define SETTINGS_ITEM_CLEAR_CACHE 7
-#define SETTINGS_ITEM_CLEAR_LYRICS 8
-#define SETTINGS_ITEM_COUNT 9
+#define SETTINGS_ITEM_SLEEP_TIMER 1
+#define SETTINGS_ITEM_BALANCE 2
+#define SETTINGS_ITEM_BASS_FILTER 3
+#define SETTINGS_ITEM_SOFT_LIMITER 4
+#define SETTINGS_ITEM_SAMPLE_RATE 5
+#define SETTINGS_ITEM_RESAMPLER 6
+#define SETTINGS_ITEM_BUFFER 7
+#define SETTINGS_ITEM_CLEAR_CACHE 8
+#define SETTINGS_ITEM_CLEAR_LYRICS 9
+#define SETTINGS_ITEM_COUNT 10
 
 // Format cache size as human-readable string
 static void format_cache_size(long bytes, char* buf, int buf_size) {
@@ -56,6 +57,7 @@ void render_settings_menu(SDL_Surface* screen, IndicatorType show_setting, int m
 	const char* balance_desc = balance_error && balance_error[0] ? balance_error : "Adjust the Game and Music mix";
 	UISettingsItem items[] = {
 		{.label = "Auto Screen Off", .value = Settings_getScreenOffDisplayStr(), .swatch = -1, .cycleable = 1, .desc = "Turn off screen while music is playing"},
+		{.label = "Sleep Timer", .value = Settings_getAutoSleepDisplayStr(), .swatch = -1, .cycleable = 1, .desc = "Stop playback after this much listening time"},
 		{.label = "Balance", .value = MusicBalance_getDisplayString(), .swatch = -1, .cycleable = 1, .desc = balance_desc},
 		{.label = "Bass Filter", .value = Settings_getBassFilterDisplayStr(), .swatch = -1, .cycleable = 1, .desc = "High-pass filter to reduce speaker distortion"},
 		{.label = "Soft Limiter", .value = Settings_getSoftLimiterDisplayStr(), .swatch = -1, .cycleable = 1, .desc = "Limit volume peaks to prevent clipping"},
@@ -71,6 +73,7 @@ void render_settings_menu(SDL_Surface* screen, IndicatorType show_setting, int m
 						  menu_selected, &scroll, NULL);
 
 	bool is_cyclable = (menu_selected == SETTINGS_ITEM_SCREEN_OFF ||
+						menu_selected == SETTINGS_ITEM_SLEEP_TIMER ||
 						menu_selected == SETTINGS_ITEM_BALANCE ||
 						menu_selected == SETTINGS_ITEM_BASS_FILTER ||
 						menu_selected == SETTINGS_ITEM_SOFT_LIMITER ||

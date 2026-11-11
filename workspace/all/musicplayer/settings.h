@@ -26,6 +26,11 @@ void Settings_cycleScreenOffPrev(void); // 60 -> Off -> 120 -> 90 -> 60
 // Get display string for current screen off timeout
 // Returns: "60s", "90s", "120s", or "Off"
 const char* Settings_getScreenOffDisplayStr(void);
+int Settings_getAutoSleepMinutes(void);
+void Settings_cycleAutoSleepNext(void);
+void Settings_cycleAutoSleepPrev(void);
+const char* Settings_getAutoSleepDisplayStr(void);
+void Settings_reloadAutoSleep(void);
 
 // Lyrics enabled setting
 bool Settings_getLyricsEnabled(void);

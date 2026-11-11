@@ -922,7 +922,7 @@ Array* Content_searchRoms(const char* query) {
 		Entry* entry = all_roms->items[i];
 		// match the label ("Metal Slug (Arcade)") or the raw filename ("mslug"),
 		// so an aliased rom still surfaces under its on-disk name
-		if (containsString(entry->name, (char*)query) || containsString((char*)baseName(entry->path), (char*)query)) {
+		if (EntryNames_matchesQuery(entry->name, baseName(entry->path), query)) {
 			EntryArray_push(results, entry);
 		} else {
 			Entry_free(entry);

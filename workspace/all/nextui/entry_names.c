@@ -9,12 +9,34 @@
 #include <string.h>
 #include "defines.h"
 #include "utils.h"
+#include "pinyin.h"
 
 int EntryNames_indexChar(const char* name) {
+	uint32_t cp;
+	Pinyin_decode(name, &cp);
+	if (cp >= 0x80) {
+		char initial = Pinyin_initial(cp);
+		return initial ? (initial - 'a') + 1 : 27;
+	}
 	int c = tolower((unsigned char)name[0]);
 	if (c >= 'a' && c <= 'z')
 		return (c - 'a') + 1;
 	return c > 'z' ? 27 : 0;
+}
+
+bool EntryNames_matchesQuery(const char* name, const char* file_name, const char* query) {
+	if (!query || !query[0])
+		return true;
+	if (containsString((char*)name, (char*)query) || containsString((char*)file_name, (char*)query))
+		return true;
+	// initials only ever hold letters and digits, so a query with anything else (a space, Chinese) cannot match them
+	for (const char* q = query; *q; q++)
+		if (!isalnum((unsigned char)*q))
+			return false;
+	char key[MAX_PATH];
+	if (Pinyin_hasMultibyte(name) && Pinyin_initials(name, key, sizeof(key)) && containsString(key, (char*)query))
+		return true;
+	return Pinyin_hasMultibyte(file_name) && Pinyin_initials(file_name, key, sizeof(key)) && containsString(key, (char*)query);
 }
 
 int EntryNames_alphaStep(IntArray* alphas, int* alpha, int* index, int row, const char* name) {

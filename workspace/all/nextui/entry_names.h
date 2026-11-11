@@ -11,6 +11,11 @@
 // sorts before 'a' (digits, most punctuation), 1-26 for a-z, 27 for what sorts after 'z' ("{|}~" and every UTF-8
 // lead byte), so each group is one run of the sorted list.
 int EntryNames_indexChar(const char* name);
+// (An ideograph's group is its pinyin initial's letter, matching EntryArray_sort, which files Chinese names by initial.)
+
+// Whether a rom matches a search query: a case-insensitive substring of its display name or file name, or, for a
+// name with Chinese characters, of its pinyin initials ("tstd" finds 吞食天地).
+bool EntryNames_matchesQuery(const char* name, const char* file_name, const char* query);
 
 // One row of the letter-jump index, rows taken in list order: a row whose group differs from the last row's (*alpha)
 // starts a group at that row in alphas, unless alphas is full, when it joins the last group (a list not in

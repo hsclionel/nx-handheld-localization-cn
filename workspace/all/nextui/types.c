@@ -1,6 +1,8 @@
 #include "types.h"
 #include "defines.h"
 #include "utils.h"
+#define PINYIN_IMPL
+#include "pinyin.h"
 
 ///////////////////////////////////////
 // Array
@@ -196,8 +198,48 @@ static int EntryArray_sortEntry(const void* a, const void* b) {
 	c = strcmp(item1->name, item2->name);
 	return c ? c : strcmp(item1->path, item2->path);
 }
+// Sort rows: names with multibyte characters carry a key where each ideograph is its pinyin initial, so Chinese
+// names file under A-Z next to Latin ones (and EntryNames_indexChar's letter groups stay contiguous runs).
+// Pure-ASCII names have no key and compare as before.
+typedef struct {
+	Entry* entry;
+	char* key;
+} SortRow;
+
+static int EntryArray_sortRow(const void* a, const void* b) {
+	const SortRow* r1 = a;
+	const SortRow* r2 = b;
+	int c = strcasecmp(r1->key ? r1->key : r1->entry->name, r2->key ? r2->key : r2->entry->name);
+	if (c)
+		return c;
+	return EntryArray_sortEntry(&r1->entry, &r2->entry);
+}
+
 void EntryArray_sort(Array* self) {
-	qsort(self->items, self->count, sizeof(void*), EntryArray_sortEntry);
+	int n = self->count;
+	bool any_multibyte = false;
+	for (int i = 0; i < n && !any_multibyte; i++)
+		any_multibyte = Pinyin_hasMultibyte(((Entry*)self->items[i])->name);
+	SortRow* rows = any_multibyte ? calloc((size_t)n, sizeof(SortRow)) : NULL;
+	if (!rows) { // pure ASCII (the common case) or out of memory: the plain comparator
+		qsort(self->items, self->count, sizeof(void*), EntryArray_sortEntry);
+		return;
+	}
+	for (int i = 0; i < n; i++) {
+		Entry* e = self->items[i];
+		rows[i].entry = e;
+		if (Pinyin_hasMultibyte(e->name)) {
+			char key[MAX_PATH];
+			Pinyin_sortKey(e->name, key, sizeof(key));
+			rows[i].key = strdup(key);
+		}
+	}
+	qsort(rows, (size_t)n, sizeof(SortRow), EntryArray_sortRow);
+	for (int i = 0; i < n; i++) {
+		self->items[i] = rows[i].entry;
+		free(rows[i].key);
+	}
+	free(rows);
 }
 
 void EntryArray_free(Array* self) {

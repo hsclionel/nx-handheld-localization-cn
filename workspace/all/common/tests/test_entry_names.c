@@ -17,6 +17,10 @@ static void test_index_char(void) {
 	assert(EntryNames_indexChar("{x") == 27 && EntryNames_indexChar("~x") == 27);
 	assert(EntryNames_indexChar("\xC3\x89tude") == 27); // a UTF-8 lead byte sorts after 'z'
 
+	// Chinese names file under their pinyin initial
+	assert(EntryNames_indexChar("吞食天地") == 20 && EntryNames_indexChar("三国志") == 19 && EntryNames_indexChar("仙剑奇侠传") == 24);
+	assert(EntryNames_indexChar("\xE3\x81\x82") == 27); // hiragana has no initial: after 'z', like any other multibyte start
+
 	// groups never go backwards over a sorted list, so each group is one run
 	const char* names[] = {"Zelda", "apple", "1942", "\xC3\x89t\xC3\xA9", "banana", "_test", "~tilde", "Apple 2", "[b]"};
 	Array* entries = Array_new();
@@ -27,6 +31,47 @@ static void test_index_char(void) {
 		assert(EntryNames_indexChar(((Entry*)entries->items[i - 1])->name) <=
 			   EntryNames_indexChar(((Entry*)entries->items[i])->name));
 	EntryArray_free(entries);
+}
+
+static void test_pinyin_sort_and_search(void) {
+	// Chinese names sort among Latin ones by initial: 1942 < Astro < 魂斗罗 (h) < 三国志 (s) < Tetris < 吞食天地 (tstd) < 仙剑 (x) < Zelda
+	const char* names[] = {"Zelda", "吞食天地", "Tetris", "三国志", "1942", "仙剑奇侠传", "Astro", "魂斗罗"};
+	const char* want[] = {"1942", "Astro", "魂斗罗", "三国志", "Tetris", "吞食天地", "仙剑奇侠传", "Zelda"};
+	Array* entries = Array_new();
+	for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++)
+		EntryArray_push(entries, Entry_newNamed("/x/f", ENTRY_ROM, names[i]));
+	EntryArray_sort(entries);
+	for (int i = 0; i < entries->count; i++)
+		assert(strcmp(((Entry*)entries->items[i])->name, want[i]) == 0);
+	IntArray alphas;
+	IntArray_init(&alphas);
+	int alpha = -1, index = 0;
+	for (int i = 0; i < entries->count; i++)
+		EntryNames_alphaStep(&alphas, &alpha, &index, i, ((Entry*)entries->items[i])->name);
+	assert(alphas.count == 7); // 0, a, h, s, t, x, z: Tetris and 吞食天地 share T
+	EntryArray_free(entries);
+
+	// a list without any multibyte name sorts exactly as before
+	const char* plain[] = {"b", "A", "a", "B"};
+	entries = Array_new();
+	for (int i = 0; i < 4; i++)
+		EntryArray_push(entries, Entry_newNamed("/x/f", ENTRY_ROM, plain[i]));
+	EntryArray_sort(entries);
+	assert(strcmp(((Entry*)entries->items[0])->name, "A") == 0 && strcmp(((Entry*)entries->items[1])->name, "a") == 0);
+	EntryArray_free(entries);
+
+	// search: substring first, then pinyin initials of the label or of the file name
+	assert(EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "tstd"));
+	assert(EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "TSTD"));
+	assert(EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "std"));
+	assert(EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "天地"));
+	assert(EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "tunshi"));
+	assert(!EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "xyz"));
+	assert(!EntryNames_matchesQuery("吞食天地 (FC)", "tunshi.nes", "tstd fc")); // a space: no initials match
+	assert(EntryNames_matchesQuery("alias (GBA)", "魂斗罗.gba", "hdl"));
+	assert(EntryNames_matchesQuery("Tetris (GB)", "tetris.gb", "tet"));
+	assert(!EntryNames_matchesQuery("Tetris (GB)", "tetris.gb", "tstd")); // ASCII names never match as initials
+	assert(EntryNames_matchesQuery("anything", "x", "") && EntryNames_matchesQuery("anything", "x", NULL));
 }
 
 static void test_alpha_step(void) {
@@ -137,6 +182,7 @@ static void test_switcher_labels(void) {
 
 int main(void) {
 	test_index_char();
+	test_pinyin_sort_and_search();
 	test_alpha_step();
 	test_file_stem();
 	test_read_map();

@@ -375,7 +375,7 @@ char* gamepad_values[] = {
 
 static char* getScreenScalingDesc(void) {
 	if (GFX_supportsOverscan()) {
-		return "Native uses integer scaling. Aspect uses core nreported aspect ratio.\nAspect screen uses screen aspect ratio\n Fullscreen has non-square\npixels. Cropped is integer scaled then cropped.";
+		return "Native uses integer scaling. Aspect uses core reported aspect ratio.\nAspect screen uses screen aspect ratio\n Fullscreen has non-square\npixels. Cropped is integer scaled then cropped.";
 	} else {
 		return "Native uses integer scaling.\nAspect uses core reported aspect ratio.\nAspect screen uses screen aspect ratio\nFullscreen has non-square pixels.";
 	}

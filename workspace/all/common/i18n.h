@@ -251,7 +251,9 @@ static I18NPattern i18n_parse_pattern(const char* key, const char* val, int* ok)
 		segs[n++] = (I18NSeg){lit_start, (size_t)(w - 1 - lit_start), 0};
 		p.lit_total += (size_t)(w - 1 - lit_start);
 	}
-	int bad = p.nspec > I18N_MAX_SPECS || p.lit_total < 2;
+	// One literal char still anchors a match ("%ds" -> "%d秒"; %d only takes digits);
+	// a bare conversion with no literal text is still rejected.
+	int bad = p.nspec > I18N_MAX_SPECS || p.lit_total < 1;
 	for (int i = 0; i + 1 < n; i++)
 		if (!segs[i].lit && segs[i].conv == 's' && !segs[i + 1].lit)
 			bad = 1; // ambiguous split between two captures

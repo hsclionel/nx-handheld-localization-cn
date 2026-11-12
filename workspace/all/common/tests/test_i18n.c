@@ -13,6 +13,19 @@ static void write_file(const char* path, const char* text) {
 	fclose(f);
 }
 
+// Entries the loader should keep from a .lang file: every non-empty, non-comment line with a tab.
+static int count_entries(const char* path) {
+	FILE* f = fopen(path, "rb");
+	assert(f);
+	char line[4096];
+	int n = 0;
+	while (fgets(line, sizeof(line), f))
+		if (line[0] != '#' && line[0] != '\n' && line[0] != '\r' && strchr(line, '\t'))
+			n++;
+	fclose(f);
+	return n;
+}
+
 static void eq(const char* got, const char* want) {
 	if (strcmp(got, want) != 0) {
 		fprintf(stderr, "got  [%s]\nwant [%s]\n", got, want);
@@ -95,6 +108,19 @@ int main(void) {
 	const char* b = I18N_tr("Disc 2");
 	const char* c = I18N_tr("Added: x");
 	assert(strcmp(a, "碟片 1") == 0 && strcmp(b, "碟片 2") == 0 && strcmp(c, "已添加：x") == 0);
+
+	// the shipped dictionary: every entry loads (a key the pattern parser rejects, such as a stray
+	// "%" or two adjacent %s, is dropped silently and its text stays English on the device)
+	const char* real = "../../../../skeleton/SYSTEM/res/lang/zh_CN.lang";
+	int want = count_entries(real), got = I18N_loadFile(real);
+	if (got != want) {
+		fprintf(stderr, "zh_CN.lang: loaded %d of %d entries\n", got, want);
+		assert(0);
+	}
+	eq(I18N_tr("45s"), "45秒");
+	eq(I18N_tr("Unlocked 2026-11-12 (pending sync)"), "已解锁 2026-11-12（待同步）");
+	eq(I18N_tr("Select the fan speed percentage (Quiet/Normal/Performance or 0-100%)"),
+	   "选择风扇速度百分比（安静/标准/高性能或 0-100%）");
 
 	// reload with an empty/garbage file goes back to English
 	write_file(path, "just words\nno tabs here\n");

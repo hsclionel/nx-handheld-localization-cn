@@ -29,9 +29,9 @@ Press any button to close	按任意键关闭	ui_controlshelp.c
 BACK	返回	gamelist.c,gameswitcher.c,imageviewer.c,ma_frontend_opts.c,ma_menu.c,module_library.c,musicplayer.c,ratools_browser.c,search.c,settings_bootlogo.c,settings_menu.c,settings_wifi.c,ui_emptystate.c,ui_iptv.c,ui_listview.c,ui_music.c,ui_player.c,ui_playlist.c,ui_podcast.c,ui_radio.c,ui_settings.c
 Loading...	加载中…	mediaplayer.c,ui_podcast.c,ui_splash.c
 Emulator Settings	模拟器设置	options.c,tiles.c
-Clear All Overrides (%d)	清除全部覆盖 (%d)	options.c
-Reset to Global	重置为全局	options.c
-Reset to Default	重置为默认	options.c
+Clear All Overrides (%d)	清除全部覆盖设置（%d）	options.c
+Reset to Global	重置为全局设置	options.c
+Reset to Default	重置为默认设置	options.c
 Exit Emulator Settings?	退出模拟器设置？	options.c
 Launch	启动	options.c
 Exit Launch Options?	退出启动选项？	options.c
@@ -53,7 +53,7 @@ OPEN	打开	gamelist.c,home.c,imageviewer.c,module_library.c,ratools.c,ratools_b
 Name already used	名称已存在	imageviewer.c
 Rename failed	重命名失败	imageviewer.c,module_player.c
 Delete \"%s\"?	删除“%s”？	imageviewer.c
-The folder and everything inside it will be deleted	文件夹和里面的所有内容都会删除	imageviewer.c
+The folder and everything inside it will be deleted	文件夹及其中的所有内容都会删除	imageviewer.c
 Delete failed	删除失败	imageviewer.c,module_player.c
 Image Viewer	图片查看器	imageviewer.c
 Rename	重命名	gamelist.c,imageviewer.c
@@ -98,35 +98,35 @@ Videos	视频	ui_player.c
 No videos found	未找到视频	ui_player.c
 Add videos to /Videos on your SD card	把视频添加到 SD 卡的 /Videos 目录	ui_player.c
 RESUME	继续	gamelist.c,gameswitcher.c,home.c,search.c,ui_player.c,ui_podcast.c
-Native uses integer scaling. Aspect uses core nreported aspect ratio.\nAspect screen uses screen aspect ratio\n Fullscreen has non-square\npixels. Cropped is integer scaled then cropped.	原生：整数缩放。保持比例：按核心报告的宽高比。\n拉伸至屏幕：按屏幕宽高比。\n全屏：非方形像素。裁切：整数缩放后裁切。	ma_config.c
-Native uses integer scaling.\nAspect uses core reported aspect ratio.\nAspect screen uses screen aspect ratio\nFullscreen has non-square pixels.	原生：整数缩放。\n保持比例：按核心报告的宽高比。\n拉伸至屏幕：按屏幕宽高比。\n全屏：非方形像素。	ma_config.c
+Native uses integer scaling. Aspect uses core reported aspect ratio.\nAspect screen uses screen aspect ratio\n Fullscreen has non-square\npixels. Cropped is integer scaled then cropped.	原生：整数缩放。保持比例：按核心报告的宽高比。\n屏幕比例：按屏幕宽高比。\n全屏：非方形像素。裁切：整数缩放后裁切。	ma_config.c
+Native uses integer scaling.\nAspect uses core reported aspect ratio.\nAspect screen uses screen aspect ratio\nFullscreen has non-square pixels.	原生：整数缩放。\n保持比例：按核心报告的宽高比。\n屏幕比例：按屏幕宽高比。\n全屏：非方形像素。	ma_config.c
 Screen Scaling	屏幕缩放	ma_config.c
 Audio Resampling Quality	音频重采样质量	ma_config.c
 Resampling quality higher takes more CPU	重采样质量越高，占用 CPU 越多	ma_config.c
 Ambient Mode	氛围灯模式	ma_config.c
-Makes your leds follow on screen colors	让灯珠跟随屏幕颜色变化	ma_config.c
+Makes your leds follow on screen colors	让 LED 跟随屏幕颜色变化	ma_config.c
 Screen Effect	屏幕特效	ma_config.c
-Grid simulates an LCD grid.\nLine simulates CRT scanlines.\nEffects usually look best at native scaling.	网格模拟 LCD 网点。\n扫描线模拟 CRT 行纹。\n特效通常在原生缩放下效果最佳。	ma_config.c
+Grid simulates an LCD grid.\nLine simulates CRT scanlines.\nEffects usually look best at native scaling.	网格模拟 LCD 像素格。\n扫描线模拟 CRT 扫描线效果。\n特效通常在原生缩放下效果最佳。	ma_config.c
 Overlay	屏幕覆盖层	ma_config.c
-Choose a custom overlay png from the Overlays folder	从 Overlays 文件夹选择自定义覆盖图 png	ma_config.c
+Choose a custom overlay png from the Overlays folder	从 Overlays 文件夹选择自定义屏幕覆盖层 png	ma_config.c
 Offset screen X	屏幕偏移 X	ma_config.c
 Offset X pixels	水平偏移像素	ma_config.c
 Offset screen Y	屏幕偏移 Y	ma_config.c
 Offset Y pixels	垂直偏移像素	ma_config.c
 Screen Sharpness	屏幕锐度	ma_config.c
-LINEAR smooths lines, but works better when final image is at higher resolution, so either core that outputs higher resolution or upscaling with shaders	线性插值平滑线条，但最终画面分辨率较高时效果更好（核心输出高分辨率或用着色器放大）	ma_config.c
+LINEAR smooths lines, but works better when final image is at higher resolution, so either core that outputs higher resolution or upscaling with shaders	线性插值平滑线条，但最终画面分辨率较高时效果更好，可选用输出高分辨率的核心，或用着色器放大	ma_config.c
 Core Sync	核心同步	ma_config.c
 Choose what should be used as a\nreference for the frame rate.\n\"Native\" uses the emulator frame rate,\n\"Screen\" uses the frame rate of the screen,\n\"Emulated\" follows the game's own timing\n(GPU cores).	选择帧率参考来源。\n“原生”使用模拟器帧率，\n“屏幕”使用屏幕刷新率，\n“模拟”跟随游戏自身时序\n（GPU 核心）。	ma_config.c
 CPU Speed	CPU 速度	ma_config.c
-Over- or underclock the CPU to prioritize\npure performance or power savings.	超频或降频 CPU，\n以优先性能或续航。	ma_config.c
+Over- or underclock the CPU to prioritize\npure performance or power savings.	超频或降频 CPU，\n优先性能或省电。	ma_config.c
 Debug HUD	调试 HUD	ma_config.c
 Show frames per second, cpu load,\nresolution, and scaler information.	显示帧率、CPU 占用、\n分辨率和缩放器信息。	ma_config.c
 Max FF Speed	快进最大速度	ma_config.c
-Fast forward will not exceed the\nselected speed (but may be less\ndepending on game and emulator).	快进速度不超过所选档位\n（实际取决于游戏和模拟器，\n可能更低）。	ma_config.c
+Fast forward will not exceed the\nselected speed (but may be less\ndepending on game and emulator).	快进不会超过所选速度\n（实际取决于游戏和模拟器，\n可能更低）。	ma_config.c
 Fast forward audio	快进时播放声音	ma_config.c
 Play or mute audio when fast forwarding.	快进时播放或静音。	ma_config.c
 Rewind	回溯	ma_config.c
-Enable in-memory rewind buffer.\nMust set a shortcut to access rewind during gameplay.\nUses extra CPU and memory.	启用内存回溯缓冲区。\n需在快捷键中设置回溯键位。\n占用额外 CPU 和内存。	ma_config.c
+Enable in-memory rewind buffer.\nMust set a shortcut to access rewind during gameplay.\nUses extra CPU and memory.	启用内存回溯缓冲区。\n需设置快捷键才能在游戏中使用回溯。\n占用额外 CPU 和内存。	ma_config.c
 Rewind Buffer (MB)	回溯缓冲区 (MB)	ma_config.c
 Memory reserved for rewind snapshots.\nIncrease for longer rewind times.	为回溯快照预留的内存。\n调大可获得更长的回溯时长。	ma_config.c
 Rewind Interval	回溯间隔	ma_config.c
@@ -137,16 +137,16 @@ Rewind Compression Speed	回溯压缩速度	ma_config.c
 LZ4 acceleration used for rewind snapshots.\nLower values compress more but use more CPU.	回溯快照的 LZ4 加速等级。\n数值越低压缩率越高，但占用更多 CPU。	ma_config.c
 Rewind audio	回溯时播放声音	ma_config.c
 Play or mute audio when rewinding.	回溯时播放或静音。	ma_config.c
-Optional Shaders Settings	着色器附加设置	ma_config.c
+Optional Shaders Settings	着色器可选设置	ma_config.c
 If shaders have extra settings they will show up in this settings menu	着色器的额外设置会显示在这个菜单中	ma_config.c
-Shader / Emulator Settings Preset	着色器/模拟器配置预设	ma_config.c
-Load a premade shaders/emulators config.\nTo try out a preset, exit the game without saving settings!	加载预设的着色器/模拟器配置。\n试用预设时请勿保存设置直接退出游戏！	ma_config.c
+Shader / Emulator Settings Preset	着色器/模拟器设置预设	ma_config.c
+Load a premade shaders/emulators config.\nTo try out a preset, exit the game without saving settings!	加载预设的着色器/模拟器配置。\n要试用预设，退出游戏时不要保存设置！	ma_config.c
 Number of Shaders	着色器数量	ma_config.c,ma_frontend_opts.c
 Number of shaders 1 to 3	着色器数量 1 到 3	ma_config.c
 Shader 1	着色器 1	ma_config.c
 Shader 1 program to run	着色器 1 要运行的程序	ma_config.c
 Shader 1 Filter	着色器 1 滤镜	ma_config.c
-Method of upscaling, NEAREST or LINEAR	放大方式：邻近取样或线性插值	ma_config.c
+Method of upscaling, NEAREST or LINEAR	放大方式：最近邻或线性插值	ma_config.c
 Shader 1 Source type	着色器 1 源类型	ma_config.c
 This will choose resolution source to scale from	选择缩放的分辨率来源	ma_config.c
 Shader 1 Texture Type	着色器 1 纹理类型	ma_config.c
@@ -167,32 +167,32 @@ Shader 3 Scale	着色器 3 倍率	ma_config.c
 Frontend	前端	ma_frontend_opts.c,ma_menu.c
 Core Options	核心选项	ma_frontend_opts.c
 This category has no options.	这个分类没有选项。	ma_frontend_opts.c
-This core has no options that\ncan be changed while running.	这个核心没有运行中\n可更改的选项。	ma_frontend_opts.c
-Controls	按键设置（映射页）/ 按键说明（帮助页）	ma_frontend_opts.c
+This core has no options that\ncan be changed while running.	该核心没有\n可在运行中更改的选项。	ma_frontend_opts.c
+Controls	按键	ma_frontend_opts.c
 Press A to set and X to clear.	按 A 设置，按 X 清除。	ma_frontend_opts.c
 \nSupports single button and MENU+button.	\n支持单键和 MENU+键组合。	ma_frontend_opts.c
 Controller	手柄	ma_frontend_opts.c,settings.c
 Select the type of controller.	选择手柄类型。	ma_frontend_opts.c
-Using defaults.	正在使用默认设置。	ma_frontend_opts.c
-Using console config.	正在使用主机配置。	ma_frontend_opts.c
-Using game config.	正在使用游戏配置。	ma_frontend_opts.c
-Saved for console.	已为主机保存。	ma_frontend_opts.c
+Using defaults.	使用默认设置。	ma_frontend_opts.c
+Using console config.	使用游戏机配置。	ma_frontend_opts.c
+Using game config.	使用游戏配置。	ma_frontend_opts.c
+Saved for console.	已为游戏机保存。	ma_frontend_opts.c
 Saved for game.	已为游戏保存。	ma_frontend_opts.c
-Restored console defaults.	已恢复主机默认设置。	ma_frontend_opts.c
+Restored console defaults.	已恢复游戏机默认设置。	ma_frontend_opts.c
 Restored defaults.	已恢复默认设置。	ma_frontend_opts.c
 OKAY	确定	ma_frontend_opts.c,ma_menu.c,minarch.c
 Save Changes	保存更改	ma_frontend_opts.c,ma_menu.c
-Save for console	为主机保存	ma_frontend_opts.c
+Save for console	为游戏机保存	ma_frontend_opts.c
 Save for game	为游戏保存	ma_frontend_opts.c
 Restore defaults	恢复默认	ma_frontend_opts.c
 Cheats disabled in Hardcore mode	硬核模式下金手指已禁用	ma_frontend_opts.c
 Cheats	金手指	ma_frontend_opts.c
 No cheat file loaded.\n\n	未加载金手指文件。\n\n	ma_frontend_opts.c
-No cheat file loaded.\nGet cheats from Xtras > Cheat Database.\n\n	未加载金手指文件。\n请从 Xtras > 金手指数据库 获取。\n\n	ma_frontend_opts.c
+No cheat file loaded.\nGet cheats from Xtras > Cheat Database.\n\n	未加载金手指文件。\n请从 Xtras > 金手指数据库获取。\n\n	ma_frontend_opts.c
 Shader Settings	着色器设置	ma_frontend_opts.c
 No extra settings found	未找到额外设置	ma_frontend_opts.c
 Shaders	着色器	ma_frontend_opts.c
-No shaders available\n/Shaders folder or shader files not found	无可用着色器\n/Shaders 文件夹或着色器文件不存在	ma_frontend_opts.c
+No shaders available\n/Shaders folder or shader files not found	无可用着色器\n未找到 /Shaders 文件夹或着色器文件	ma_frontend_opts.c
 Continue	继续	home.c,home.h,home_list_layout.h,ma_menu.c
 Save	保存	ma_menu.c
 Load	载入	ma_menu.c
@@ -204,9 +204,9 @@ Reset	重置	ma_menu.c
 Progress: %s	进度：%s	ma_menu.c
 %.2f%% unlock rate	%.2f%% 解锁率	ma_menu.c
 [Missable]	[易错过]	ma_menu.c
-[Progression]	[进度]	ma_menu.c
+[Progression]	[进度型]	ma_menu.c
 [Win Condition]	[胜利条件]	ma_menu.c
-MUTED: Will not show in notifications	已静音：不会显示通知	ma_menu.c
+MUTED: Will not show in notifications	已静音：不会在通知中显示	ma_menu.c
 UNMUTE	取消静音	ma_menu.c
 MUTE	静音	ma_menu.c
 RetroAchievements doesn't recognize\nthis game file. Use a supported\ndump listed on retroachievements.org.	RetroAchievements 无法识别这个游戏文件。\n请使用 retroachievements.org 上\n列出的受支持版本。	ma_menu.c
@@ -215,7 +215,7 @@ This game has no achievements yet	这个游戏还没有成就	ma_menu.c
 Failed to load achievements	加载成就失败	ma_menu.c
 Achievement list not available	成就列表不可用	ma_menu.c
 Unknown Emulator	未知模拟器	ma_menu.c,ra_integration.c
-Unsupported Game Version	不支持的版本	ma_menu.c,ra_integration.c
+Unsupported Game Version	不支持的游戏版本	ma_menu.c,ra_integration.c
 No achievements found	未找到成就	ma_menu.c
 %u/%u unlocked	%u/%u 已解锁	ma_menu.c
 SHOW ALL	显示全部	ma_menu.c
@@ -229,11 +229,11 @@ SET	设置	ma_menu.c,settings_bootlogo.c,settings_clock.c
 Failed to capture screenshot	截图失败	ma_menu.c
 Screenshot saved	截图已保存	ma_menu.c
 State Saved - Slot %d	已保存即时存档（槽位 %d）	ma_menu.c
-Save Failed - Slot %d	保存失败：槽位 %d	ma_menu.c
-Load Failed - Wrong Disc	载入失败：碟片不对	ma_menu.c
+Save Failed - Slot %d	保存即时存档失败：槽位 %d	ma_menu.c
+Load Failed - Wrong Disc	载入失败：碟片不匹配	ma_menu.c
 State Loaded - Slot %d	已载入即时存档（槽位 %d）	ma_menu.c
-Load Failed - Slot %d	载入失败：槽位 %d	ma_menu.c
-Load State Undone	已撤销载入	ma_menu.c
+Load Failed - Slot %d	载入即时存档失败：槽位 %d	ma_menu.c
+Load State Undone	载入已撤销	ma_menu.c
 Nothing To Undo	没有可撤销的操作	ma_menu.c
 The other player is waiting: %d s left.	对方玩家正在等待：剩余 %d 秒。	ma_menu.c
 Leaving ends the netplay session.	离开后联机会话会结束。	ma_menu.c
@@ -242,17 +242,17 @@ Disc %i	碟片 %i	content.c,ma_menu.c
 No Preview	无预览	gameswitcher.c,ma_menu.c
 Empty Slot	空槽位	ma_menu.c
 DualShock Toggle Combo	DualShock 切换组合键	ma_options.c
-Load states disabled in Hardcore mode	硬核模式下禁止载入即时存档	ma_saves.c
-Save states disabled in Hardcore mode	硬核模式下禁止保存即时存档	ma_saves.c
+Load states disabled in Hardcore mode	硬核模式下已禁用载入即时存档	ma_saves.c
+Save states disabled in Hardcore mode	硬核模式下已禁用保存即时存档	ma_saves.c
 Performance	高性能	minarch.c,settings.c
-Waiting for the other player.	正在等待对方。	minarch.c
+Waiting for the other player.	正在等待对方玩家。	minarch.c
 Netplay connection failed.	联机连接失败。	minarch.c
 Netplay ended	联机已结束	minarch.c
-The other player left or the connection was lost.	对方已离开或连接已断开。	minarch.c
+The other player left or the connection was lost.	对方玩家已离开或连接已断开。	minarch.c
 Achievement Unlocked: %s	成就已解锁：%s	ra_integration.c
 Leaderboard: %s	排行榜：%s	ra_integration.c
 Submitted %s to %s	已提交 %s 到 %s	ra_integration.c
-Game Mastered!	游戏已精通！	ra_integration.c
+Game Mastered!	已达成全成就！	ra_integration.c
 RA Server Error: %s	RA 服务器错误：%s	ra_integration.c
 Connecting to RetroAchievements...	正在连接 RetroAchievements…	ra_integration.c
 RetroAchievements: Connection failed	RetroAchievements：连接失败	ra_integration.c
@@ -289,7 +289,7 @@ Invalid name	名称无效	module_playlist.c
 Playlist created	播放列表已创建	module_playlist.c
 Playlist renamed	播放列表已重命名	module_playlist.c
 Playlist deleted	播放列表已删除	module_playlist.c
-Track removed	已移除曲目	module_playlist.c
+Track removed	曲目已移除	module_playlist.c
 Delete Playlist?	删除播放列表？	module_playlist.c
 Remove Track?	移除曲目？	module_playlist.c
 Rename Playlist	重命名播放列表	module_playlist.c
@@ -339,7 +339,7 @@ Loading stations...	正在加载电台…	module_radio.c
 Couldn't load stations	无法加载电台	module_radio.c
 No stations for this country	这个国家暂无电台	module_radio.c
 Added: %s	已添加：%s	module_radio.c
-Maximum 256 stations reached	电台数量已达上限	module_radio.c
+Maximum 256 stations reached	最多只能保存 256 个电台	module_radio.c
 Game	游戏	music_balance.c
 Music	音乐	music_balance.c,ui_main.c
 Music Player	音乐播放器	musicplayer.c,ui_main.c,ui_playlist.c,ui_radio.c
@@ -349,7 +349,7 @@ If this keeps happening, reinstall or update NX Redux.	如果持续出现，请�
 Invalid URL	无效的 URL	radio.c
 SSL init failed	SSL 初始化失败	radio.c
 Connection failed	连接失败	radio.c,settings_wifi.c
-SSL handshake failed (host=%s)	SSL 握手失败 (host=%s)	radio.c
+SSL handshake failed (host=%s)	SSL 握手失败（host=%s）	radio.c
 SSL handshake timeout	SSL 握手超时	radio.c
 Send failed	发送失败	radio.c
 Header read failed	读取响应头失败	radio.c
@@ -403,7 +403,7 @@ Unknown Artist	未知艺术家	ui_music.c
 Unknown Title	未知标题	ui_music.c
 REPEAT	循环	ui_music.c
 SHUFFLE	随机播放	ui_music.c
-LYRIC OFF	无歌词	ui_music.c
+LYRIC OFF	歌词已关闭	ui_music.c
 Music Player | Playlists	音乐播放器 | 播放列表	ui_playlist.c
 No playlists saved	暂无播放列表	ui_playlist.c
 Press A to create a playlist	按 A 新建播放列表	ui_playlist.c
@@ -420,7 +420,7 @@ Press A to manage podcasts	按 A 管理播客	ui_podcast.c
 Continue Listening	继续收听	ui_podcast.c
 Subscriptions	订阅	ui_podcast.c
 %d Episodes	%d 集	ui_podcast.c
-%d New	%d 条新	ui_podcast.c
+%d New	新增 %d 集	ui_podcast.c
 Downloads	下载	ui_podcast.c
 Music Player | Manage Podcasts	音乐播放器 | 管理播客	ui_podcast.c
 Music Player | Top Shows	音乐播放器 | 热门节目	ui_podcast.c
@@ -472,13 +472,13 @@ buffering	缓冲中	ui_radio.c
 streaming	串流中	ui_radio.c
 error	错误	ui_radio.c
 Music Player | Settings	音乐播放器 | 设置	ui_settings.c
-Clear Album Art (%s)	清除专辑封面 (%s)	ui_settings.c
-Clear Lyrics (%s)	清除歌词 (%s)	ui_settings.c
+Clear Album Art (%s)	清除专辑封面（%s）	ui_settings.c
+Clear Lyrics (%s)	清除歌词（%s）	ui_settings.c
 Adjust the Game and Music mix	调节游戏和音乐的混音比例	ui_settings.c
 Auto Screen Off	自动熄屏	ui_settings.c
 Turn off screen while music is playing	播放音乐时自动熄屏	ui_settings.c
-Balance	声道平衡	ui_settings.c
-Bass Filter	低音滤波	ui_settings.c
+Balance	游戏/音乐平衡	ui_settings.c
+Bass Filter	低音切除	ui_settings.c
 High-pass filter to reduce speaker distortion	高通滤波，减少扬声器失真	ui_settings.c
 Soft Limiter	软限幅	ui_settings.c
 Limit volume peaks to prevent clipping	限制音量峰值，防止削波失真	ui_settings.c
@@ -521,18 +521,18 @@ Art fetch failed	封面获取失败	gamelist.c
 Art fetch timed out	封面获取超时	gamelist.c
 Delete ROM?	删除 ROM？	gamelist.c
 Pick a game	选个游戏	gamelist.c,gamelist.h,home.c,placeholder_art.h
-Unpin Item	取消收藏条目	gamelist.c
-Pin Item	收藏条目	gamelist.c
+Unpin Item	取消固定	gamelist.c
+Pin Item	固定到主菜单	gamelist.c
 Delete Rom	删除 ROM	gamelist.c
 Rename Rom	重命名 ROM	gamelist.c
 Emulator Options	模拟器选项	gamelist.c
 Fetch Artwork	获取封面	gamelist.c
-Unpin Tool	取消收藏工具	gamelist.c
-Pin Tool	收藏工具	gamelist.c
+Unpin Tool	取消固定	gamelist.c
+Pin Tool	固定到主菜单	gamelist.c
 Refresh Roms	刷新 ROM	gamelist.c
 Consoles	游戏机	gamelist.c,menutabs_model.c
 Tools	工具	gamelist.c,menutabs_model.c,menutabs_model.h
-Unpin	取消收藏	gamelist.c
+Unpin	取消固定	gamelist.c
 RECENT	最近	gamelist.c,home.c
 Show search hint	显示搜索提示	gamelist.c,settings.c
 SEARCH	搜索	gamelist.c
@@ -541,10 +541,10 @@ OPTIONS	选项	gamelist.c,home.c
 Empty folder	空文件夹	gamelist.c,gridview.c,rowview.c,stackview.c
 Recent	最近	gameswitcher.c
 Recents	最近游玩	gameswitcher.c
-No Resumable Games	无可继续的游戏	gameswitcher.c
+No Resumable Games	没有可继续的游戏	gameswitcher.c
 Suspend a game to see it here	挂起游戏后会显示在这里	gameswitcher.c
 Nothing played yet	还没有游玩记录	gameswitcher.c,home.c
-Logo	标志	grid_layout.h,settings_led.c,tiles.c,tiles.h
+Logo	Logo	grid_layout.h,settings_led.c,tiles.c,tiles.h
 Device Sync	设备同步	sync.c,tiles.c
 Cheat Database	金手指数据库	tiles.c
 No music playing	未在播放音乐	osdmusic.c
@@ -563,7 +563,7 @@ Title (Z-A)	标题（Z-A）	ratools.c
 Type (Asc)	类型（正序）	ratools.c
 Type (Desc)	类型（倒序）	ratools.c
 (not set)	（未设置）	ratools.c
-Never	从未	ratools.c
+Never	永不	ratools.c
 Reset account data?	重置账号数据？	ratools.c
 Clears login, unlock progress, and pending syncs. Game data and badges are kept.	清除登录、解锁进度和待同步项。游戏数据和徽章会保留。	ratools.c
 Erase all achievement data?	清除全部成就数据？	ratools.c
@@ -584,20 +584,20 @@ Test credentials and retrieve API token	校验凭据并获取 API 令牌	ratools
 Status	状态	ratools.c
 Authentication status	登录状态	ratools.c
 Download all game data	下载全部游戏数据	ratools.c
-Cache achievement data for every game in your library	为库中的每个游戏缓存成就数据	ratools.c
+Cache achievement data for every game in your library	为游戏库中的每个游戏缓存成就数据	ratools.c
 Show notifications	显示通知	ratools.c
 Show achievement unlock notifications	显示成就解锁通知	ratools.c
 Notification duration	通知时长	ratools.c
 How long achievement notifications stay on screen	成就通知在屏幕上的停留时间	ratools.c
 Progress duration	进度时长	ratools.c
-Duration for progress updates (top-left). Off to disable.	进度提示（左上角）的显示时长。选关则关闭。	ratools.c
+Duration for progress updates (top-left). Off to disable.	进度提示（左上角）的显示时长。设为“关”可关闭。	ratools.c
 Achievement sort order	成就排序方式	ratools.c
 How achievements are sorted in the in-game menu	游戏内菜单中成就的排序方式	ratools.c
 Reset account data	重置账号数据	ratools.c
 Clear login and progress. Keeps game data.	清除登录和进度，保留游戏数据。	ratools.c
 Erase all achievement data	清除全部成就数据	ratools.c
 Remove everything, including games and badges.	移除全部数据，包括游戏和徽章。	ratools.c
-Reset settings to defaults	恢复默认设置	ratools.c
+Reset settings to defaults	重置为默认设置	ratools.c
 Restore the options above to their default values.	把上面的选项恢复为默认值。	ratools.c
 RetroAchievements | Settings	RetroAchievements | 设置	ratools.c
 Sync now	立即同步	ratools.c
@@ -606,8 +606,10 @@ Last sync: %s	上次同步：%s	ratools.c
 Exit RetroAchievements?	退出 RetroAchievements？	ratools.c
 Your settings are automatically saved	设置会自动保存	ratools.c,settings.c
  (pending sync)	（待同步）	ratools_browser.c
-Unlocked %s%s	已解锁 %s%s	ratools_browser.c
+Unlocked %s	已解锁 %s	ratools_browser.c
 Unlocked%s	已解锁%s	ratools_browser.c
+Unlocked %s (pending sync)	已解锁 %s（待同步）	ratools_browser.c
+Unlocked (pending sync)	已解锁（待同步）	ratools_browser.c
 Locked	未解锁	ratools_browser.c
 Missable	易错过	ratools_browser.c
 Progression	进度型	ratools_browser.c
@@ -638,7 +640,7 @@ Could not verify the account. Authenticate again and retry.	无法验证账号�
 Hashing	正在计算哈希	ratools_prefetch.c
 Fetching achievement data	正在获取成就数据	ratools_prefetch.c
 Done	完成	ratools_prefetch.c
-%d fetched, %d already cached, %d not in RA, %d failed	成功 %d，已缓存 %d，RA 未收录 %d，失败 %d	ratools_prefetch.c
+%d fetched, %d already cached, %d not in RA, %d failed	已获取 %d，已缓存 %d，RA 未收录 %d，失败 %d	ratools_prefetch.c
 RetroAchievements | Sync now	RetroAchievements | 立即同步	ratools_sync.c
 Syncing offline unlocks	正在同步离线解锁	ratools_sync.c
 Submitting	提交中	ratools_sync.c
@@ -654,8 +656,8 @@ Cloud status current	云端状态已是最新	ratools_sync.c
 Muted	已静音	settings.c,settings_audio.c
 Content List	内容列表	settings.c
 Game Switcher	游戏切换器	settings.c
-Resumable only	仅可继续的游戏	settings.c
-All recent games	全部最近游戏	settings.c
+Resumable only	仅显示可继续的游戏	settings.c
+All recent games	所有最近游玩的游戏	settings.c
 Retroarch (compressed)	Retroarch（压缩）	settings.c
 Retroarch (uncompressed)	Retroarch（未压缩）	settings.c
 Generic	通用	settings.c
@@ -695,15 +697,15 @@ Forgot the PIN? On the SD card, delete:\n	忘记 PIN？删除 SD 卡上的文件
 Settings | Simple Mode	设置 | 简洁模式	settings.c
 CLOSE	关闭	settings.c
 Set Settings PIN	设置 PIN	settings.c
-Confirm Settings PIN	确认设置 PIN	settings.c
+Confirm Settings PIN	确认 PIN	settings.c
 PINs did not match. Try again.	两次 PIN 不一致，请重试。	settings.c
-Reset to defaults	恢复默认设置	settings.c
+Reset to defaults	重置为默认设置	settings.c
 Done! Emulator list will refresh on next launch.	完成！模拟器列表会在下次启动时刷新。	settings.c
 Restore stock files?	恢复原厂文件？	settings.c
 Returns the console's built-in OSD files and any NX boot patches to factory state.	把系统自带的 OSD 文件和 NX 开机补丁恢复为出厂状态。	settings.c
 Done! Stock files restored.	完成！原厂文件已恢复。	settings.c
 Restore failed.	恢复失败。	settings.c
-Show the Home tab. It still shows when no other tab does.	显示主页标签页。没有其他标签页时仍会显示。	settings.c
+Show the Home tab. It still shows when no other tab does.	显示主页标签页。其他标签页都隐藏时，主页仍会显示。	settings.c
 Home layout	主页布局	settings.c
 List: Continue, games and tools in one list. Grid: Continue beside tools, games below. Carousel: games in a row, tools below.	列表：继续游玩、游戏和工具排成一列。网格：继续游玩和工具并排，游戏在下方。轮播：游戏一行，工具在下方。	settings.c
 Consoles tab	游戏机标签页	settings.c
@@ -711,27 +713,27 @@ Show the Consoles tab.	显示游戏机标签页。	settings.c
 Consoles layout	游戏机布局	settings.c
 How the Consoles tab draws.	游戏机标签页的展示方式。	settings.c
 Consoles orientation	游戏机方向	settings.c
-Whether the Consoles carousel runs across or down.	游戏机轮播的方向：横向或纵向。	settings.c
+Whether the Consoles carousel runs across or down.	选择游戏机轮播横向还是纵向滚动。	settings.c
 Collections tab	收藏夹标签页	settings.c
 Show the Collections tab.	显示收藏夹标签页。	settings.c
 Collections layout	收藏夹布局	settings.c
 How the Collections tab draws.	收藏夹标签页的展示方式。	settings.c
 Collections orientation	收藏夹方向	settings.c
-Whether the Collections carousel runs across or down.	收藏夹轮播的方向：横向或纵向。	settings.c
+Whether the Collections carousel runs across or down.	选择收藏夹轮播横向还是纵向滚动。	settings.c
 Tools tab	工具标签页	settings.c
 Show the Tools tab.	显示工具标签页。	settings.c
 Tools layout	工具布局	settings.c
 How the Tools tab draws.	工具标签页的展示方式。	settings.c
 Tools orientation	工具方向	settings.c
-Whether the Tools carousel runs across or down.	工具轮播的方向：横向或纵向。	settings.c
+Whether the Tools carousel runs across or down.	选择工具轮播横向还是纵向滚动。	settings.c
 Game lists layout	游戏列表布局	settings.c
 How a console's or collection's games draw.	游戏机或收藏夹下游戏列表的展示方式。	settings.c
 Game lists orientation	游戏列表方向	settings.c
-Whether a game list's carousel or backdrop runs across or down.	游戏列表轮播或背景画的方向：横向或纵向。	settings.c
+Whether a game list's carousel or backdrop runs across or down.	选择游戏列表的轮播或背景画横向还是纵向滚动。	settings.c
 Game lists alignment	游戏列表对齐	settings.c
 Which side a vertical game list's stack sits on; its details take the other side.	纵向游戏列表靠哪一侧；详细信息显示在另一侧。	settings.c
 Backdrop art	背景画封面	settings.c
-The pictures in the Backdrop's row. 2D box art and Wheel come from Artwork Manager > Settings.	背景画一排显示的图片。2D 盒装封面和 Logo 轮盘来自 Artwork Manager > 设置。	settings.c
+The pictures in the Backdrop's row. 2D box art and Wheel come from Artwork Manager > Settings.	背景画一排显示的图片。2D 盒装封面和 Logo 轮盘来自封面管理 > 设置。	settings.c
 Extra info	额外信息	settings.c
 Play time, achievements and Home's monthly stats, in the menus and the Game Switcher.	游玩时长、成就和主页的月度统计，显示在菜单和游戏切换器中。	settings.c
 Page title	页面标题	settings.c
@@ -742,12 +744,12 @@ Default view	默认视图	settings.c
 The initial view to show on boot	开机时显示的初始视图	settings.c
 Game Switcher games	游戏切换器的游戏	settings.c
 Which recently played games appear in the Game Switcher.	哪些最近游玩的游戏显示在游戏切换器中。	settings.c
-Resets all options in this menu to their default values.	把这个菜单里的所有选项恢复为默认值。	settings.c
+Resets all options in this menu to their default values.	把这个菜单里的所有选项重置为默认值。	settings.c
 Settings | Layouts	设置 | 布局	settings.c
-Main color	主颜色	settings.c
+Main color	主色	settings.c
 The color used to render main UI elements.	用于渲染主要界面元素的颜色。	settings.c
-Main color opacity	主颜色不透明度	settings.c
-Lower values let the wallpaper show through main pills.	数值越低，壁纸越能透过状态栏显示。	settings.c
+Main color opacity	主色不透明度	settings.c
+Lower values let the wallpaper show through main pills.	数值越低，主色底块越透明，越能看到后面的壁纸。	settings.c
 Primary accent color	主强调色	settings.c
 The color used to highlight important things in the UI.	用来突出界面中重要内容的颜色。	settings.c
 Primary accent opacity	主强调色不透明度	settings.c
@@ -761,21 +763,21 @@ Color for button hints and info	按键提示和信息颜色	settings.c
 List text	列表文本	settings.c
 List text color	列表文本颜色	settings.c
 List text selected	列表选中文本	settings.c
-List selected text color	选中列表文本的颜色	settings.c
+List selected text color	列表选中项的文字颜色	settings.c
 Show battery percentage	显示电池百分比	settings.c
 Show battery level as percent in the status pill	在状态栏中显示电池百分比	settings.c
 Show clock	显示时钟	settings.c
 Show clock in the status pill	在状态栏中显示时钟	settings.c
-Show 24h time format	使用 24 小时制	settings.c
+Show 24h time format	显示 24 小时制	settings.c
 Show clock in the 24hrs time format	以 24 小时制显示时钟	settings.c
 Show the START search button hint on the main menu	在主菜单显示 START 搜索按键提示	settings.c
 Show recent hint	显示最近游玩提示	settings.c
 Show the SELECT recent games button hint on the main menu	在主菜单显示 SELECT 最近游玩按键提示	settings.c
 Show netplay hint	显示联机提示	settings.c
 Show the Y netplay button hint in game lists and search	在游戏列表和搜索中显示 Y 联机按键提示	settings.c
-Show menu animations	启用菜单动画	settings.c
+Show menu animations	显示菜单动画	settings.c
 Enable or disable menu animations	开启或关闭菜单动画	settings.c
-Show menu transitions	显示过渡动画	settings.c
+Show menu transitions	显示菜单过渡动画	settings.c
 Enable or disable animated transitions	开启或关闭过渡动画	settings.c
 Bootlogo	开机画面	settings.c
 Change the device boot logo.	更改设备开机画面。	settings.c
@@ -792,18 +794,18 @@ Exposure	曝光	settings.c
 Exposure enhancement (-4 to 5)	曝光增强（-4 到 5）	settings.c
 Settings | Display	设置 | 显示	settings.c
 Screen timeout	息屏时间	settings.c
-Period of inactivity before screen turns off (0-600s)	屏幕关闭前无操作的时间（0-600 秒）	settings.c
+Period of inactivity before screen turns off (0-600s)	熄屏前无操作的时间（0-600 秒）	settings.c
 Suspend timeout	休眠时间	settings.c
-Time before device goes to sleep after screen is off (5-600s)	屏幕关闭后进入休眠的时间（5-600 秒）	settings.c
+Time before device goes to sleep after screen is off (5-600s)	熄屏后进入休眠的时间（5-600 秒）	settings.c
 Haptic feedback	触觉反馈	settings.c
 Enable or disable haptic feedback on certain actions in the OS	开启或关闭系统部分操作的触觉反馈	settings.c
 How hard the motor rumbles in games and for haptic feedback	游戏中马达震动和触觉反馈的强度	settings.c
 Button layout	按键布局	settings.c
 Xbox puts A at the bottom and B on the right. The quick menu (OSD) follows after a restart	Xbox 布局把 A 放在下方、B 放在右侧。快速菜单（OSD）重启后生效	settings.c
-What the A/B/X/Y hints show when Xbox layout is on. Applies as soon as you leave Settings	Xbox 布局开启时 A/B/X/Y 提示的显示方式。离开设置后立即生效	settings.c
+What the A/B/X/Y hints show when Xbox layout is on. Applies as soon as you leave Settings	Xbox 布局开启时 A/B/X/Y 提示的显示方式。退出设置后立即生效	settings.c
 Set time and date automatically	自动设置时间日期	settings.c
 Sync time via NTP (requires internet)	通过 NTP 同步时间（需要联网）	settings.c
-Set time and date manually	手动设置时间日期	settings.c
+Set time and date manually	手动设置时间和日期	settings.c
 Adjust date and time using the clock editor	使用时钟编辑器调整日期和时间	settings.c
 Time zone	时区	settings.c
 Your time zone	你的时区	settings.c
@@ -818,14 +820,14 @@ Bypasses the stock shutdown procedure to avoid the \"limbo bug\".	绕过原厂�
 Restore stock files	恢复原厂文件	settings.c
 Restores the console's factory OSD files and reverts NX boot patches, if any. The NX OSD is unaffected.	恢复系统出厂 OSD 文件并撤销 NX 开机补丁（如有）。不影响 NX OSD。	settings.c
 Fan Speed	风扇速度	settings.c
-Select the fan speed percentage (Quiet/Normal/Performance or 0-100%)	选择风扇速度百分比（安静/标准/高性能或 0-100%）	settings.c
+Select the fan speed percentage (Quiet/Normal/Performance or 0-100%%)	选择风扇速度百分比（安静/标准/高性能或 0-100%%）	settings.c
 Refresh emulator/roms list	刷新模拟器/ROM 列表	settings.c
-Clears the cached emulator/roms list so it rescans on next launch.	清除缓存的模拟器/游戏列表，下次启动时重新扫描。	settings.c
+Clears the cached emulator/roms list so it rescans on next launch.	清除缓存的模拟器/ROM 列表，下次启动时重新扫描。	settings.c
 Settings | System	设置 | 系统	settings.c
 Volume when FN is on	FN 开启时的音量	settings.c
 Speaker volume (0-20)	扬声器音量（0-20）	settings.c
-FN switch disables LED	FN 开关同时关闭灯效	settings.c
-Switch will also disable LEDs	FN 开关也会关闭灯效	settings.c
+FN switch disables LED	用 FN 开关关闭 LED	settings.c
+Switch will also disable LEDs	FN 开关也会关闭 LED	settings.c
 Brightness when FN is on	FN 开启时的亮度	settings.c
 Color temperature when FN is on	FN 开启时的色温	settings.c
 Contrast when FN is on	FN 开启时的对比度	settings.c
@@ -848,7 +850,7 @@ Duration	时长	settings.c
 How long notifications stay on screen	通知在屏幕上停留的时间	settings.c
 Settings | Notifications	设置 | 通知	settings.c
 Simple Mode	简洁模式	settings.c
-Enable simplified menu for children or casual users.	为儿童或休闲用户启用简洁菜单。	settings.c
+Enable simplified menu for children or casual users.	为儿童或轻度用户启用简洁菜单。	settings.c
 How it works	功能说明	settings.c
 Explains Simple Mode and PIN recovery.	说明简洁模式和 PIN 恢复。	settings.c
 NX Redux version	NX Redux 版本	settings.c
@@ -867,8 +869,8 @@ Layouts	布局	settings.c
 Menu styles, tabs, hints and boot view	菜单样式、标签页、按键提示和开机视图	settings.c
 In-game Notifications	游戏内通知	settings.c
 Save state notifications	即时存档通知	settings.c
-LED Control	灯光控制	settings.c
-Configure LED lighting effects	配置灯效	settings.c
+LED Control	LED 控制	settings.c
+Configure LED lighting effects	配置 LED 灯效	settings.c
 Network	网络	settings.c
 Bluetooth	蓝牙	settings.c,settings_bt.c
 Output device and sample-rate policy	输出设备和采样率策略	settings.c
@@ -885,8 +887,8 @@ This is stock OS version %s\n	这是原厂系统版本 %s\n	settings.c
 Exit Settings?	退出设置？	settings.c
 Auto	自动	settings_audio.c
 Force 48000 Hz	强制 48000 Hz	settings_audio.c
-44100 Hz	44100 赫兹	settings_audio.c
-48000 Hz	48000 赫兹	settings_audio.c
+44100 Hz	44100 Hz	settings_audio.c
+48000 Hz	48000 Hz	settings_audio.c
 Settings | Audio	设置 | 音频	settings_audio.c
 Output	输出	settings_audio.c
 Current audio sink and sample rate	当前音频输出和采样率	settings_audio.c
@@ -904,7 +906,7 @@ Disconnecting...	正在断开…	settings_bt.c
 Pairing...	正在配对…	settings_bt.c
 Unpairing...	正在取消配对…	settings_bt.c
 Disconnect	断开	settings_bt.c,settings_wifi.c
-Disconnect from this device	断开这台设备	settings_bt.c
+Disconnect from this device	断开与这台设备的连接	settings_bt.c
 Connect	连接	settings_bt.c,settings_wifi.c
 Connect to this paired device	连接到这台已配对的设备	settings_bt.c
 Unpair	取消配对	settings_bt.c
@@ -933,10 +935,10 @@ Debug logging	调试日志	settings_developer.c
 Clean dot files	清理隐藏文件	settings_developer.c
 Settings | Developer	设置 | 开发者	settings_developer.c
 Settings | Stick Calibration	设置 | 摇杆校准	settings_input.c
-Rotate stick in full circles	按整圈转动摇杆	settings_input.c
-Leave stick at center	让摇杆回到中位	settings_input.c
+Rotate stick in full circles	把摇杆转满整圈	settings_input.c
+Leave stick at center	松开摇杆，保持居中	settings_input.c
 Starting Calibration	开始校准	settings_input.c
-Get ready...	准备…	settings_input.c
+Get ready...	准备好…	settings_input.c
 Opening joystick ports...	正在打开摇杆端口…	settings_input.c
 Error	错误	settings_input.c
 Failed to open joystick serial ports	无法打开摇杆串口	settings_input.c
@@ -961,16 +963,16 @@ Blink 1	闪烁 1	settings_led.c
 Blink 2	闪烁 2	settings_led.c
 Blink 3	闪烁 3	settings_led.c
 Effect	效果	settings_led.c
-LED light effect	灯光效果	settings_led.c
+LED light effect	LED 灯效	settings_led.c
 Color	颜色	settings_led.c
-LED color	灯光颜色	settings_led.c
+LED color	LED 颜色	settings_led.c
 Speed	速度	settings_led.c
 Animation speed	动画速度	settings_led.c
-Brightness (All LEDs)	亮度（全部灯珠）	settings_led.c
-LED brightness level	灯光亮度等级	settings_led.c
+Brightness (All LEDs)	亮度（全部 LED）	settings_led.c
+LED brightness level	LED 亮度等级	settings_led.c
 Info Brightness	信息亮度	settings_led.c
-Info Brightness (All LEDs)	信息亮度（全部灯光）	settings_led.c
-LED brightness during charging/low battery	充电/低电量时的灯效亮度	settings_led.c
+Info Brightness (All LEDs)	信息亮度（全部 LED）	settings_led.c
+LED brightness during charging/low battery	充电/低电量时的 LED 亮度	settings_led.c
 F1 key	F1 键	settings_led.c
 F2 key	F2 键	settings_led.c
 Top bar	顶栏	settings_led.c
@@ -978,8 +980,8 @@ L&R triggers	左右扳机	settings_led.c
 Joysticks	摇杆	settings_led.c
 Joystick L	左摇杆	settings_led.c
 Joystick R	右摇杆	settings_led.c
-LED Control | %s	灯光控制 | %s	settings_led.c
-Settings | LED Control	设置 | 灯光控制	settings_led.c
+LED Control | %s	LED 控制 | %s	settings_led.c
+Settings | LED Control	设置 | LED 控制	settings_led.c
 EDIT	编辑	settings_menu.c
 Fetching update..	正在获取更新…	settings_updater.c
 Install Update	安装更新	settings_updater.c
@@ -1016,12 +1018,12 @@ Enabling WiFi...	正在启用 Wi-Fi…	settings_wifi.c
 Disabling WiFi...	正在禁用 Wi-Fi…	settings_wifi.c
 Connecting to %s...	正在连接 %s…	settings_wifi.c
 Enter WiFi Password	输入 Wi-Fi 密码	settings_wifi.c
-Could not join \"%s\". Check that the network is in range and try again.	无法加入 “%s”。请确认网络在信号范围内后重试。	settings_wifi.c
+Could not join \"%s\". Check that the network is in range and try again.	无法加入“%s”。请确认网络在信号范围内，然后重试。	settings_wifi.c
 Could not join \"%s\". Check the password and try again.	无法加入“%s”。请检查密码是否正确后重试。	settings_wifi.c
 Incorrect password	密码错误	settings_wifi.c
 RETRY	重试	settings_wifi.c,sync.c
 Disconnect from this network	断开这个网络	settings_wifi.c
-Forget	忘记	settings_wifi.c
+Forget	忘记网络	settings_wifi.c
 Remove saved network credentials	清除已保存的网络凭据	settings_wifi.c
 Connect using saved credentials	使用已保存的凭据连接	settings_wifi.c
 Enter password and connect	输入密码并连接	settings_wifi.c
@@ -1033,7 +1035,7 @@ Enable or disable WiFi	开启或关闭 Wi-Fi	settings_wifi.c
 WiFi diagnostics	Wi-Fi 诊断	settings_wifi.c
 Enable WiFi diagnostic logging	启用 Wi-Fi 诊断日志	settings_wifi.c
 Enable SSH / SFTP	启用 SSH / SFTP	ssh_desc.c
-Start SSH/SFTP server for remote access and file transfer.	启动 SSH/SFTP 服务，可远程访问和传输文件。	ssh_desc.c
+Start SSH/SFTP server for remote access and file transfer.	启动 SSH/SFTP 服务器，可远程访问和传输文件。	ssh_desc.c
 SSH/SFTP active. root@%s  No password	SSH/SFTP 已启用。root@%s  无密码	ssh_desc.c
 SSH/SFTP active. root@%s  Password: tina	SSH/SFTP 已启用。root@%s  密码：tina	ssh_desc.c
 SSH/SFTP active. Login: root, no password (no network)	SSH/SFTP 已启用。登录：root，无密码（无网络）	ssh_desc.c
@@ -1069,7 +1071,7 @@ SYNC AGAIN	再次同步	sync.c
 Language	语言	settings.c
 Language of the menus and settings	菜单和设置的显示语言	settings.c
 # --- new entries (drafted 2026-11-10)
-Not enough space (need ~256 MB free)	空间不足（需要约 256 MB 可用空间）	draft
+Not enough space (need ~256 MB free)	存储空间不足（需要约 256 MB 可用空间）	draft
 Download failed to start	无法开始下载	draft
 Download failed (check WiFi)	下载失败，请检查 Wi-Fi	draft
 Downloaded archive is corrupt	下载的压缩包已损坏	draft
@@ -1119,11 +1121,11 @@ Added %d track%s to %s	已添加 %1$d 首曲目到 %3$s	draft
 Clear album art cache?	清除专辑封面缓存？	draft
 Clear lyrics cache?	清除歌词缓存？	draft
 Out of memory	内存不足	draft
-Select + A	选择 + A	draft
+Select + A	Select + A	draft
 USB Cable	USB 数据线	draft
 WiFi	Wi-Fi	draft
-Host Game	创建游戏	draft
-Join Game	加入游戏	draft
+Host Game	创建房间	draft
+Join Game	加入房间	draft
 Hotspot	热点	draft
 EmuDrop	在线商店	draft
 Artwork Manager	封面管理	draft
@@ -1134,7 +1136,7 @@ DOWNLOAD ALL	全部下载	draft
 RetroAchievements | Library	RetroAchievements | 游戏库	draft
 Optimize images	优化图片	draft
 Progress	进度	draft
-QUEUE ALL	全部加入队列	draft
+QUEUE ALL	全部入队	draft
 Artwork Manager | Progress	封面管理 | 进度	draft
 Queue is empty	队列为空	draft
 Add ROMs from Library	从游戏库添加 ROM	draft
@@ -1150,7 +1152,7 @@ Delete every image the scraper downloaded (your own .media pictures are kept)	�
 Reset artwork	重置封面	draft
 ScreenScraper username	ScreenScraper 用户名	draft
 ScreenScraper password	ScreenScraper 密码	draft
-API requests used today	今天已用的 API 请求数	draft
+API requests used today	今日已用的 API 请求数	draft
 Requests Today	今日请求数	draft
 Daily request limit	每日请求上限	draft
 Max Requests	请求上限	draft
@@ -1163,7 +1165,7 @@ No Network	无网络	draft
 Nothing to queue	没有可加入队列的内容	draft
 All ROMs already queued or scraped	所有 ROM 都已在队列中或已刮削	draft
 Scrape in progress	正在刮削	draft
-Wait for the queue to finish	等队列完成	draft
+Wait for the queue to finish	请等待队列完成	draft
 Reset artwork?	重置封面？	draft
 Deletes downloaded images only	只会删除已下载的图片	draft
 Reset complete	重置完成	draft
@@ -1181,7 +1183,7 @@ Unsupported system	不支持的游戏机	draft
 Already queued	已在队列中	draft
 ROM is already in the queue	这个 ROM 已在队列中	draft
 Minimal	简约	draft
-Mix	合成	draft
+Mix	合成图	draft
 Settings | Emulator Shortcuts	设置 | 模拟器快捷键	draft
 Bottom bar	底栏	draft
 The tabs and the button hints. Hidden, L1/R1 still switch tabs; Lists show play time there.	标签页和按键提示。隐藏后仍可用 L1/R1 切换标签页；列表样式会在这里显示游玩时长。	draft
@@ -1190,11 +1192,11 @@ F1 / F2 keys	F1 / F2 键	draft
 Launch a tool with the F1/F2 keys	用 F1/F2 键启动工具	draft
 Emulator Shortcuts	模拟器快捷键	draft
 In-game shortcuts for every console	所有游戏机通用的游戏内快捷键	draft
-Keep the screen on and block sleep while connected to a computer over USB.	通过 USB 连接电脑时，保持亮屏并阻止休眠。	draft
+Keep the screen on and block sleep while connected to a computer over USB.	通过 USB 连接电脑时，保持亮屏并禁止休眠。	draft
 Automatically start SSH/SFTP when device boots.	开机时自动启动 SSH/SFTP。	draft
 Start SSH / SFTP on boot	开机启动 SSH / SFTP	draft
 Save app and game logs to the SD card (.userdata/logs). Off keeps them in RAM only.	把应用和游戏日志保存到 SD 卡（.userdata/logs）。关闭后只保存在内存中。	draft
-SELECT+START	选择+开始	draft
+SELECT+START	SELECT+START	draft
 Wi-Fi not connected.\nTurn on Wi-Fi, or sync via cable.	Wi-Fi 未连接。\n请开启 Wi-Fi，或改用数据线同步。	draft
 Sync saves and states\nbetween two devices.	在两台设备之间\n同步存档和即时存档。	draft
 Sync saves, states and ROMs\nbetween two devices.	在两台设备之间\n同步存档、即时存档和 ROM。	draft
@@ -1213,17 +1215,17 @@ Stop playback after this much listening time	听满这段时间后停止播放	u
 %d game	%d 个游戏	gameinfo_text.c
 %d games	%d 个游戏	gameinfo_text.c,rowview.c
 Search: %s	搜索：%s	content.c
-Building mix...	正在合成封面…	gamelist.c
+Building mix...	正在生成合成图…	gamelist.c
 Can't use that name	不能用这个名字	gamelist.c
 Connect to WiFi to fetch art	连上 Wi-Fi 才能获取封面	gamelist.c
 Couldn't delete the collection	删除收藏夹失败	gamelist.c
 Couldn't rename the collection	重命名收藏夹失败	gamelist.c
 Delete '%s'?	删除“%s”？	gamelist.c
 Netplay (%s)	联机（%s）	gamelist.c
-Resume (%s)	继续（%s）	gamelist.c
+Resume (%s)	继续游玩（%s）	gamelist.c
 The name can't be empty.	名字不能为空。	collname.c
 The name can't contain / \\ : * ? " < > |	名字里不能有 / \\ : * ? " < > |	collname.c
 The name can't start with a dot.	名字不能以“.”开头。	collname.c
 "map" is reserved.	不能用“map”这个名字。	collname.c
 Confirm	确认	ui_keyboard.c
-SHIFT	大写	ui_keyboard.c
+SHIFT	SHIFT	ui_keyboard.c

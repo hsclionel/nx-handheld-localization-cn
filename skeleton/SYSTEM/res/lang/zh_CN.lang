@@ -820,7 +820,7 @@ Bypasses the stock shutdown procedure to avoid the \"limbo bug\".	绕过原厂�
 Restore stock files	恢复原厂文件	settings.c
 Restores the console's factory OSD files and reverts NX boot patches, if any. The NX OSD is unaffected.	恢复系统出厂 OSD 文件并撤销 NX 开机补丁（如有）。不影响 NX OSD。	settings.c
 Fan Speed	风扇速度	settings.c
-Select the fan speed percentage (Quiet/Normal/Performance or 0-100%)	选择风扇速度百分比（安静/标准/高性能或 0-100%）	settings.c
+Select the fan speed percentage (Quiet/Normal/Performance or 0-100%%)	选择风扇速度百分比（安静/标准/高性能或 0-100%%）	settings.c
 Refresh emulator/roms list	刷新模拟器/ROM 列表	settings.c
 Clears the cached emulator/roms list so it rescans on next launch.	清除缓存的模拟器/ROM 列表，下次启动时重新扫描。	settings.c
 Settings | System	设置 | 系统	settings.c

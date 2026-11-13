@@ -172,3 +172,61 @@ through PPSSPP core options.
   `skeleton/SYSTEM/tg5040/paks/Emus/DC.pak/{launch.sh,nx_dc_netplay.sh}`;
   `skeleton/SYSTEM/shared/bin/netplay-prelaunch.sh`
 - https://www.ppsspp.org/docs/settings/network/ (PPSSPP networking settings)
+
+## Retry 2026-11-13 night
+
+> Update (2026-11-14): the retry on the night of 2026-11-13 implemented
+> Phases 1–3. The "no code is implemented yet" status at the top of this
+> note is now outdated; the remaining-work checklists above are superseded
+> by the feature branch below, except for the manual hardware test matrix,
+> which is still not done.
+
+### What the retry did
+
+- Phase 1 — checked out the pinned PPSSPP hash (`d4e3c7eb…`) and confirmed
+  all Ad-Hoc libretro option keys exist (`ppsspp_enable_wlan`,
+  `ppsspp_enable_builtin_pro_ad_hoc_server`,
+  `ppsspp_change_pro_ad_hoc_server_address` + 12 digit options,
+  `ppsspp_port_offset` including `10000`, 12 MAC nibble options).
+  Nickname cannot be forced from the session (no `GET_USERNAME` in
+  minarch) — not blocking. No relay option exists at the pinned hash;
+  Phase 4 stays deferred.
+- Phase 2 — added the `netplay` marker to both PSP.pak dirs, added
+  `nx_psp_netplay.sh` (both platforms) modelled on `nx_dc_netplay.sh`,
+  wired `launch.sh` to source it, and added a pure `NX_SESSION_OPTIONS`
+  parser (`workspace/all/netplay/session_options.{h,c}`) with the
+  single-key session option in `ma_config.c` generalized to a table of 32.
+- Phase 3 — "Leave Ad-Hoc?" dialog in `ma_menu.c` for PPSSPP core-run
+  sessions; session restrictions and the UDP bye reuse `NX_CORE_NETPLAY`;
+  saves stay per-player (`Saves/PSP/SAVEDATA/`, no sync). Host tests
+  added and passing (`test-psp-adhoc-sh.sh`, `test_session_options.c`).
+  One pre-existing failure noted: `run_tests.sh` aborts at
+  `test_discovery` (UDP `sendto` blocked in the sandbox) on pristine main
+  too.
+
+### Where the code lives
+
+- Branch: `feature/psp-adhoc-netplay`
+  (https://github.com/hsclionel/nx-handheld-localization-cn/tree/feature/psp-adhoc-netplay),
+  commit `1b45e50a` (2026-11-14 00:38 +08), 14 files, +665/−27 vs main
+  `62b5c81`.
+- Checkpoints (local only): `~/workspace/nx-psp-adhoc/checkpoints/
+  phase{1,2,3}-*.md`.
+- No draft PR was opened for the feature branch — that step is still owed.
+
+### What remains
+
+- Open the draft PR for `feature/psp-adhoc-netplay` (do not merge).
+- Device build check: `ma_config.c` / `ma_menu.c` do not compile on the
+  host (minarch needs SDL2 + device platform headers); the edits follow
+  the existing code line-for-line but are uncompiled.
+- Manual test matrix (two devices over Wi-Fi/hotspot, phone PPSSPP,
+  Tag Force / MHFU / Tekken 6) — needs real hardware, not done.
+- Phase 4 (public relay) deferred as planned.
+
+### Why it stopped
+
+The retry run produced the three phase checkpoints and the commit
+(2026-11-13 22:05 +08), and the branch reached origin at 2026-11-14
+00:38 +08 (snapshot sync), but it wrote no retry status and no briefing
+file and opened no draft PR — the run ended before its final steps.

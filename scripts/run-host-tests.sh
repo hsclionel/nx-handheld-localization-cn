@@ -31,7 +31,7 @@ done
 
 # Host-only wrappers; the *-e2e and device scripts need adb and are run by hand.
 for t in archive-cache cheat-match cheat-mem cheatdb-data rewind-budget apply-patches \
-	scraper-variants media-tools-unit menu-animations turbo-shaper; do
+	scraper-variants media-tools-unit menu-animations turbo-shaper psp-adhoc-sh; do
 	[ -f "scripts/tests/test-$t.sh" ] && run "script-$t" bash "scripts/tests/test-$t.sh"
 done
 

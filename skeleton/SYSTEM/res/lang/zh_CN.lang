@@ -238,6 +238,8 @@ Nothing To Undo	没有可撤销的操作	ma_menu.c
 The other player is waiting: %d s left.	对方玩家正在等待：剩余 %d 秒。	ma_menu.c
 Leaving ends the netplay session.	离开后联机会话会结束。	ma_menu.c
 Leave netplay?	离开联机？	ma_menu.c
+Leaving ends the Ad-Hoc session.	离开后 Ad-Hoc 联机会结束。	ma_menu.c
+Leave Ad-Hoc?	离开 Ad-Hoc？	ma_menu.c
 Disc %i	碟片 %i	content.c,ma_menu.c
 No Preview	无预览	gameswitcher.c,ma_menu.c
 Empty Slot	空槽位	ma_menu.c

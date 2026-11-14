@@ -1609,12 +1609,16 @@ typedef struct {
 
 static void leaveNetplay_render(SDL_Surface* dst, void* data) {
 	LeaveNetplayCtx* ctx = data;
+	// A core-run Ad-Hoc session (PPSSPP) is not lockstep netplay: name it so.
+	bool adhoc = CoreNetplay_isActive() && exactMatch((char*)core.name, "ppsspp");
 	char subtitle[128];
 	if (ctx->seconds_left >= 0)
 		snprintf(subtitle, sizeof(subtitle), "The other player is waiting: %d s left.", ctx->seconds_left);
+	else if (adhoc)
+		snprintf(subtitle, sizeof(subtitle), "Leaving ends the Ad-Hoc session.");
 	else
 		snprintf(subtitle, sizeof(subtitle), "Leaving ends the netplay session.");
-	UI_renderConfirmDialogHints(dst, "Leave netplay?", subtitle, (char*[]){"B", "CONTINUE", "A", "LEAVE", NULL});
+	UI_renderConfirmDialogHints(dst, adhoc ? "Leave Ad-Hoc?" : "Leave netplay?", subtitle, (char*[]){"B", "CONTINUE", "A", "LEAVE", NULL});
 }
 
 static int leaveNetplay_handle(void* data) {

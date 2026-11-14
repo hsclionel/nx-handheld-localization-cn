@@ -22,3 +22,6 @@ cc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address -g -I"$D" "$D/tests/test_
 OUT_CR=${TMPDIR:-/tmp}/test_core_rules
 cc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address -g -I"$D" "$D/netplay_core_rules.c" "$D/tests/test_core_rules.c" -o "$OUT_CR"
 "$OUT_CR"
+OUT_SO=${TMPDIR:-/tmp}/test_session_options
+cc -std=gnu99 -Wall -Wextra -Werror -fsanitize=address -g -I"$D" "$D/session_options.c" "$D/tests/test_session_options.c" -o "$OUT_SO"
+"$OUT_SO"

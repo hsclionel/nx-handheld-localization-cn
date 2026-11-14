@@ -7,6 +7,7 @@
 #include "ma_cpu_profile.h"
 #include "ma_config_value.h"
 #include "netplay_core_rules.h"
+#include "session_options.h"
 
 char* onoff_labels[] = {
 	"Off",
@@ -1238,53 +1239,97 @@ static void Config_setGamepadType(int type) {
 	core.set_controller_port_device(1, device); // player 2 (netplay) gets the same pad
 }
 
-// Session option: a netplay joiner runs the host's link mode (gpsp_serial) for
+// Session options: a netplay joiner runs the host's link mode (gpsp_serial) for
 // the session only, as NX Redux Mobile does (NetplayLinkOptions.forSession).
 // Its own choice stays in its cfg, so the next launch is back on it.
-static char session_key[64];
-static char session_value[64];
-static int session_user_value = -1; // the user's value of session_key while forced
+// More than one key: a core-run session such as PSP Ad-Hoc needs a whole set
+// (WLAN on, built-in server on/off, server address, port offset, MAC nibbles),
+// with host and join differing and the join IP only known at wizard time, so
+// the pak launcher exports them as NX_SESSION_OPTIONS ("key=value;...") and
+// Config_forceSessionOption applies them all.
+static char session_keys[SESSION_OPTIONS_MAX][SESSION_OPTION_KEY_MAX];
+static char session_values[SESSION_OPTIONS_MAX][SESSION_OPTION_VALUE_MAX];
+static int session_user_values[SESSION_OPTIONS_MAX]; // the user's value of each key while forced
+static size_t session_count;
+
+// The entry for `key`, or -1 when no session option uses it yet.
+static int Config_sessionIndex(const char* key) {
+	for (size_t i = 0; i < session_count; i++)
+		if (exactMatch(session_keys[i], (char*)key))
+			return (int)i;
+	return -1;
+}
+
+// Record `key` = `value` for the session without touching any option value:
+// Config_forceSessionOption captures the user's value and applies the forced
+// one once the core has registered its options.
+static void Config_rememberSessionOption(const char* key, const char* value) {
+	int i = Config_sessionIndex(key);
+	if (i < 0) {
+		if (session_count >= SESSION_OPTIONS_MAX)
+			return;
+		i = (int)session_count++;
+		snprintf(session_keys[i], sizeof(session_keys[i]), "%s", key);
+		session_user_values[i] = -1;
+	}
+	snprintf(session_values[i], sizeof(session_values[i]), "%s", value);
+}
 
 // The value Config_write saves for `option`: the user's own while a session forces it
 static int Config_netplayUserValue(Option* option) {
-	if (session_user_value >= 0 && exactMatch(option->key, session_key))
-		return session_user_value;
+	int i = Config_sessionIndex(option->key);
+	if (i >= 0 && session_user_values[i] >= 0)
+		return session_user_values[i];
 	return option->value;
 }
 void Config_setSessionOption(const char* key, const char* value) {
 	Option* option = OptionList_getOption(&config.core, key);
 	if (!option)
 		return;
-	if (session_user_value < 0 || !exactMatch(session_key, (char*)key)) {
-		snprintf(session_key, sizeof(session_key), "%s", key);
-		session_user_value = option->value;
-	}
-	snprintf(session_value, sizeof(session_value), "%s", value);
+	Config_rememberSessionOption(key, value);
+	int i = Config_sessionIndex(key);
+	if (session_user_values[i] < 0)
+		session_user_values[i] = option->value;
 	LOG_info("Netplay: %s = %s for the session (user: %s)\n", key, value,
-			 option->values[session_user_value]);
+		 option->values[session_user_values[i]]);
 	OptionList_setOptionValue(&config.core, key, value);
 	option->lock = 1; // hidden from the menu: a change would need a reload and break the link
 }
 static void Config_forceSessionOption(void) {
-	if (session_user_value < 0)
-		return;
-	Option* option = OptionList_getOption(&config.core, session_key);
-	if (!option)
-		return;
-	if (config.user_cfg)
-		session_user_value = option->value; // this re-read just left the user's choice
-	OptionList_setOptionValue(&config.core, session_key, session_value);
-	option->lock = 1;
+	// A core-run session's options, from the launcher: malformed input is
+	// logged and ignored rather than starting the game half-configured.
+	const char* env = getenv("NX_SESSION_OPTIONS");
+	if (env && env[0]) {
+		char keys[SESSION_OPTIONS_MAX][SESSION_OPTION_KEY_MAX];
+		char values[SESSION_OPTIONS_MAX][SESSION_OPTION_VALUE_MAX];
+		size_t n = 0;
+		if (SessionOptions_parse(env, keys, values, SESSION_OPTIONS_MAX, &n) < 0)
+			LOG_warn("Netplay: ignoring malformed NX_SESSION_OPTIONS\n");
+		else
+			for (size_t i = 0; i < n; i++)
+				Config_rememberSessionOption(keys[i], values[i]);
+	}
+	for (size_t i = 0; i < session_count; i++) {
+		Option* option = OptionList_getOption(&config.core, session_keys[i]);
+		if (!option)
+			continue; // the core has not registered its options yet; a later read applies it
+		if (config.user_cfg || session_user_values[i] < 0)
+			session_user_values[i] = option->value; // the user's cfg value, or the default when there is no cfg
+		OptionList_setOptionValue(&config.core, session_keys[i], session_values[i]);
+		option->lock = 1;
+	}
 }
 // Restore Defaults during a session: the defaults become the user's choice that
 // Config_write saves, and the forced values stay on (the running core has them)
 static void Config_restoreNetplayValues(void) {
 	if (np_gamepad_user >= 0)
 		np_gamepad_user = 0;
-	Option* option = session_user_value >= 0 ? OptionList_getOption(&config.core, session_key) : NULL;
-	if (option) {
-		session_user_value = option->default_value;
-		OptionList_setOptionValue(&config.core, session_key, session_value);
+	for (size_t i = 0; i < session_count; i++) {
+		Option* option = session_user_values[i] >= 0 ? OptionList_getOption(&config.core, session_keys[i]) : NULL;
+		if (option) {
+			session_user_values[i] = option->default_value;
+			OptionList_setOptionValue(&config.core, session_keys[i], session_values[i]);
+		}
 	}
 }
 static void Config_forceNetplayPads(void) {

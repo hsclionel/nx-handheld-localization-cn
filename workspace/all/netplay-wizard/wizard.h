@@ -30,6 +30,12 @@ typedef struct {
 	int max_players;		  // --max-players (2..4, default 2). >2 enables multi-join.
 	const char* caps;		  // --caps (optional; traded with the peer, see wiz_caps.h)
 	unsigned modes;			  // --modes (default WIZ_MODES_ALL), see wiz_modes.h
+	// --open-host <hint> (optional): adds a "Host for PC/Phone" role for a game
+	// whose core runs the multiplayer itself (PSP Ad-Hoc), so the other side
+	// can be any emulator rather than this wizard. That host joins WiFi, shows
+	// its IP and <hint> (what to enter on the other side), and starts on A
+	// without a peer handshake; the session then has no NETPLAY_PEER_IP.
+	const char* open_host;
 } WizArgs;
 
 typedef struct {
@@ -64,6 +70,7 @@ int wiz_hotspot_start(WizSession* s, const char* game); // hotspot host
 int wiz_hotspot_join(WizSession* s);					// hotspot client
 // wizard_net.c
 int wiz_host_rendezvous(const WizArgs* a, WizSession* s); // wait+handshake(+sync serve)
+int wiz_open_host_wait(const WizArgs* a, WizSession* s);  // --open-host: show IP, start on A
 int wiz_client_rendezvous(const WizArgs* a, WizSession* s);
 // wizard_usb.c
 int wiz_usb_link_up(WizSession* s); // 0 linked (s->peer_ip set), -1 error (message drawn), -2 cancelled

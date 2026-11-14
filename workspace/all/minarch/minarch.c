@@ -587,6 +587,16 @@ finish:
 	// window where Core_quit() writes the SRAM file, leaving a 0 KB .srm behind
 	// (issue #115).
 	QuitSettings();
+	// PPSSPP stays mapped after dlclose (a C++ core with unique symbols is not
+	// unloaded), so its static destructors run at exit. After an Ad-Hoc session
+	// one of them meets a still-joinable std::thread and the process ends in
+	// "terminate called without an active exception" / SIGABRT (device test
+	// 2026-11-14). Everything minarch owns is written and closed by now (SRAM,
+	// RTC, cfg, screenshot, settings), so skip the core's destructors.
+	if (exactMatch((char*)core.name, "ppsspp")) {
+		fflush(NULL);
+		_exit(EXIT_SUCCESS);
+	}
 	return EXIT_SUCCESS;
 }
 

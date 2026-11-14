@@ -30,8 +30,14 @@ grep -q 'nx_psp_netplay\.sh' "$PSP50/launch.sh" || fail "tg5050 launch.sh does n
 mkdir -p "$TMP/bin" "$TMP/logs"
 cat > "$TMP/bin/netplay.elf" <<'EOF'
 #!/bin/sh
-# NX_FAKE_WIZARD: host | client | badpeer | fail. --cleanup is a no-op.
-if [ "$1" = "--cleanup" ]; then exit 0; fi
+# NX_FAKE_WIZARD: host | openhost | client | badpeer | fail. --cleanup only
+# leaves a mark (NX_FAKE_CLEANUP_MARK) so a test can see it ran; the wizard
+# arguments go to NX_FAKE_ARGS_FILE, one per line.
+if [ "$1" = "--cleanup" ]; then
+	[ -n "${NX_FAKE_CLEANUP_MARK:-}" ] && touch "$NX_FAKE_CLEANUP_MARK"
+	exit 0
+fi
+[ -n "${NX_FAKE_ARGS_FILE:-}" ] && printf '%s\n' "$@" > "$NX_FAKE_ARGS_FILE"
 SESSION=""
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -41,6 +47,7 @@ while [ $# -gt 0 ]; do
 done
 case "${NX_FAKE_WIZARD:-host}" in
 	host) printf 'NETPLAY_ROLE=host\nNETPLAY_PEER_IP=192.168.0.7\nNETPLAY_MODE=wifi\nNETPLAY_PLAYER=1\nNETPLAY_NUM_PLAYERS=2\n' > "$SESSION" ;;
+	openhost) printf 'NETPLAY_ROLE=host\nNETPLAY_PEER_IP=\nNETPLAY_MODE=wifi\nNETPLAY_PLAYER=1\nNETPLAY_NUM_PLAYERS=2\n' > "$SESSION" ;;
 	client) printf 'NETPLAY_ROLE=client\nNETPLAY_PEER_IP=192.168.0.5\nNETPLAY_MODE=wifi\nNETPLAY_PLAYER=2\nNETPLAY_NUM_PLAYERS=2\n' > "$SESSION" ;;
 	badpeer) printf 'NETPLAY_ROLE=client\nNETPLAY_PEER_IP=999.1.1.1\nNETPLAY_MODE=wifi\n' > "$SESSION" ;;
 	fail) exit 1 ;;
@@ -83,20 +90,46 @@ echo "$out" | grep -q 'CORE_NETPLAY=unset' || fail "plain launch exported NX_COR
 echo "$out" | grep -q 'SESSION_OPTIONS=unset' || fail "plain launch exported NX_SESSION_OPTIONS: $out"
 
 # --- host -------------------------------------------------------------------
-out=$(run_case host host NX_PSP_NETPLAY_MAC_HEX=0123456789ab)
+out=$(run_case host host NX_PSP_NETPLAY_MAC_HEX=0123456789ab NX_PSP_NETPLAY_OWN_IP=192.168.0.2 \
+	NX_FAKE_ARGS_FILE="$TMP/host.args")
 echo "$out" | grep -q '^REACHED$' || fail "host case did not reach the core launch: $out"
 echo "$out" | grep -q '^CORE_NETPLAY=1$' || fail "host: NX_CORE_NETPLAY != 1: $out"
 echo "$out" | grep -q '^GGPO_SERVER=192.168.0.7$' || fail "host: GGPO_SERVER wrong: $out"
 echo "$out" | grep -q '^ROLE_LEFT=$' || fail "host: NETPLAY_ROLE not unset: $out"
 opts=$(echo "$out" | sed -n 's/^SESSION_OPTIONS=//p')
 for kv in ppsspp_enable_wlan=enabled ppsspp_enable_builtin_pro_ad_hoc_server=enabled \
-		ppsspp_change_pro_ad_hoc_server_address=localhost ppsspp_port_offset=10000 \
+		ppsspp_change_pro_ad_hoc_server_address="IP address" ppsspp_port_offset=10000 \
+		ppsspp_pro_ad_hoc_server_address01=1 ppsspp_pro_ad_hoc_server_address03=2 \
+		ppsspp_pro_ad_hoc_server_address06=8 ppsspp_pro_ad_hoc_server_address09=0 \
+		ppsspp_pro_ad_hoc_server_address12=2 \
 		ppsspp_change_mac_address01=0 ppsspp_change_mac_address02=0 \
 		ppsspp_change_mac_address11=a ppsspp_change_mac_address12=b; do
 	# note: override MAC 0123456789ab has its second nibble masked 1 -> 0
 	case ";$opts;" in *";$kv;"*) ;; *) fail "host: missing $kv in '$opts'" ;; esac
 done
-case "$opts" in *"pro_ad_hoc_server_address01"*) fail "host: must not set server IP digits" ;; esac
+# never localhost: PPSSPP would register the host as 127.0.0.1 (device test 2026-11-14)
+case "$opts" in *"=localhost"*) fail "host: server address must not be localhost: '$opts'" ;; esac
+grep -qx -- '--open-host' "$TMP/host.args" || fail "wizard not offered --open-host: $(cat "$TMP/host.args")"
+
+# --- host for PC/phone (--open-host): no peer, server = own IP --------------
+out=$(run_case openhost openhost NX_PSP_NETPLAY_OWN_IP=10.0.0.12)
+echo "$out" | grep -q '^REACHED$' || fail "open host did not reach the core launch: $out"
+echo "$out" | grep -q '^CORE_NETPLAY=1$' || fail "open host: NX_CORE_NETPLAY != 1: $out"
+echo "$out" | grep -q '^GGPO_SERVER=$' || fail "open host: GGPO_SERVER should be empty: $out"
+opts=$(echo "$out" | sed -n 's/^SESSION_OPTIONS=//p')
+for kv in ppsspp_enable_builtin_pro_ad_hoc_server=enabled ppsspp_change_pro_ad_hoc_server_address="IP address" \
+		ppsspp_pro_ad_hoc_server_address01=0 ppsspp_pro_ad_hoc_server_address02=1 \
+		ppsspp_pro_ad_hoc_server_address03=0 ppsspp_pro_ad_hoc_server_address10=0 \
+		ppsspp_pro_ad_hoc_server_address11=1 ppsspp_pro_ad_hoc_server_address12=2; do
+	case ";$opts;" in *";$kv;"*) ;; *) fail "open host: missing $kv in '$opts'" ;; esac
+done
+
+# --- host with no usable LAN address: back to the list, WiFi restored ------
+rm -f "$TMP/noip.cleanup"
+out=$(run_case noip host NX_PSP_NETPLAY_OWN_IP=not.an.ip NX_FAKE_CLEANUP_MARK="$TMP/noip.cleanup"); rc=$?
+echo "$out" | grep -q '^REACHED$' && fail "host with no LAN address still reached the core launch"
+[ "$rc" = 0 ] || fail "host with no LAN address: exit code $rc, expected 0"
+[ -f "$TMP/noip.cleanup" ] || fail "host with no LAN address: netplay.elf --cleanup not run"
 
 # --- join -------------------------------------------------------------------
 out=$(run_case client client NX_PSP_NETPLAY_MAC_HEX=0123456789ab)

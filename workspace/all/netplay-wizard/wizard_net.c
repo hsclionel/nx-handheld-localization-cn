@@ -1409,3 +1409,38 @@ int wiz_client_rendezvous(const WizArgs* a, WizSession* s) {
 		// src == 1: refused or dropped, message drawn — pick again.
 	}
 }
+
+// --open-host: the host for a stock emulator on the other side (PSP Ad-Hoc
+// with PC/phone PPSSPP). There is nothing to hand-shake with, so this only
+// shows the address and the pak's hint (what to enter over there) and waits
+// for the player to start. No discovery broadcast, no listener: a stock
+// emulator would not answer either. s->peer_ip stays empty.
+int wiz_open_host_wait(const WizArgs* a, WizSession* s) {
+	char ip[16] = {0};
+	if (WIFI_direct_getIP(ip, sizeof(ip)) != 0 || !ip[0])
+		NET_getLocalIP(ip, sizeof(ip));
+	if (!ip[0]) {
+		wiz_net_notice("No WiFi address - check the connection");
+		return -1;
+	}
+	s->peer_ip[0] = '\0';
+
+	bool dirty = true;
+	while (1) {
+		GFX_startFrame();
+		PAD_poll();
+
+		if (PAD_justPressed(BTN_B) || app_quit)
+			return -2;
+		if (PAD_justPressed(BTN_A))
+			return 0;
+
+		PWR_update(&dirty, NULL, NULL, NULL);
+		if (dirty) {
+			wiz_net_render_lobby(ip, a->open_host, "Press A to start, then join from the other side");
+			dirty = false;
+		} else {
+			GFX_sync();
+		}
+	}
+}

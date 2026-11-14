@@ -20,7 +20,10 @@ nx_psp_netplay() {
 	NP_ROMFILE=$(basename "$ROM")
 	NP_STEM="${NP_ROMFILE%.*}"
 
+	# --open-host adds "Host for PC/Phone": the other side is a stock PPSSPP,
+	# which only needs this device's IP (shown by the wizard) and the offset.
 	netplay.elf --game "$NP_STEM" --session-file "$NP_SESSION" \
+		--open-host "In PPSSPP: Ad Hoc server = this IP, port offset 10000" \
 		> "$LOGS_PATH/netplay-wizard.txt" 2>&1 || { nx_psp_netplay_cleanup; exit 0; }
 	[ -f "$NP_SESSION" ] || { nx_psp_netplay_cleanup; exit 0; }
 	. "$NP_SESSION"
@@ -57,20 +60,26 @@ nx_psp_netplay() {
 
 	# The session's PPSSPP core options (see checkpoints/phase1-options.md):
 	# WLAN on and Port Offset 10000 on both sides; the host also runs the
-	# built-in PRO Ad Hoc Server and points its own game at it via
-	# localhost, while the joiner points at the host's IP, digit by digit.
+	# built-in PRO Ad Hoc Server. Both sides point at the HOST's LAN IP, digit
+	# by digit: the host at its own address, the joiner at the peer's. Never
+	# "localhost" on the host: PPSSPP then registers the host as 127.0.0.1 and
+	# binds its game socket to loopback, so no peer can reach it (device test
+	# 2026-11-14, plans/psp-adhoc-device-test-2026-11-14.md).
 	NP_OPTS="ppsspp_enable_wlan=enabled;ppsspp_port_offset=10000"
 	if [ "$NP_ROLE" = host ]; then
-		NP_OPTS="$NP_OPTS;ppsspp_enable_builtin_pro_ad_hoc_server=enabled;ppsspp_change_pro_ad_hoc_server_address=localhost"
+		NP_SERVER=$(nx_psp_own_ip "$NP_PEER") || { echo "PSP Ad-Hoc: no LAN address for the host" >> "$LOGS_PATH/netplay-wizard.txt"; nx_psp_netplay_abort; }
+		NP_OPTS="$NP_OPTS;ppsspp_enable_builtin_pro_ad_hoc_server=enabled"
 	else
-		NP_IP_DIGITS=$(nx_psp_ip_digits "$NP_PEER") || { nx_psp_netplay_cleanup; exit 0; }
-		NP_OPTS="$NP_OPTS;ppsspp_enable_builtin_pro_ad_hoc_server=disabled;ppsspp_change_pro_ad_hoc_server_address=IP address"
-		NP_I=1
-		while [ "$NP_I" -le 12 ]; do
-			NP_OPTS="$NP_OPTS;ppsspp_pro_ad_hoc_server_address$(nx_psp_pad2 "$NP_I")=$(printf '%s' "$NP_IP_DIGITS" | cut -c"$NP_I")"
-			NP_I=$((NP_I + 1))
-		done
+		NP_SERVER="$NP_PEER"
+		NP_OPTS="$NP_OPTS;ppsspp_enable_builtin_pro_ad_hoc_server=disabled"
 	fi
+	NP_IP_DIGITS=$(nx_psp_ip_digits "$NP_SERVER") || nx_psp_netplay_abort
+	NP_OPTS="$NP_OPTS;ppsspp_change_pro_ad_hoc_server_address=IP address"
+	NP_I=1
+	while [ "$NP_I" -le 12 ]; do
+		NP_OPTS="$NP_OPTS;ppsspp_pro_ad_hoc_server_address$(nx_psp_pad2 "$NP_I")=$(printf '%s' "$NP_IP_DIGITS" | cut -c"$NP_I")"
+		NP_I=$((NP_I + 1))
+	done
 	if [ ${#NP_MAC_HEX} -eq 12 ]; then
 		NP_I=1
 		while [ "$NP_I" -le 12 ]; do
@@ -111,6 +120,35 @@ nx_psp_ip_digits() {
 	done
 	[ -n "$(printf '%s' "$NP_IP" | cut -d. -f5)" ] && return 1
 	printf '%s' "$NP_OUT"
+}
+
+# This device's LAN address, which the host's game and server must use: the
+# source address of the route to the peer when there is one (WiFi, hotspot
+# and USB alike), else wlan0's address ("Host for PC/Phone" has no peer).
+# NX_PSP_NETPLAY_OWN_IP overrides it, for tests only.
+nx_psp_own_ip() {
+	if [ -n "${NX_PSP_NETPLAY_OWN_IP:-}" ]; then
+		printf '%s' "$NX_PSP_NETPLAY_OWN_IP"
+		return 0
+	fi
+	NP_SRC=""
+	if [ -n "$1" ]; then
+		NP_SRC=$(ip route get "$1" 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n 1)
+	fi
+	if [ -z "$NP_SRC" ]; then
+		NP_SRC=$(ip -4 addr show wlan0 2>/dev/null | sed -n 's/.*inet \([0-9.]*\)\/.*/\1/p' | head -n 1)
+	fi
+	[ -n "$NP_SRC" ] || return 1
+	printf '%s' "$NP_SRC"
+}
+
+# A session the wizard set up but this script cannot use: undo the wizard's
+# network changes now (launch.sh's cleanup is never reached) and leave
+# launch.sh, back to the game list.
+nx_psp_netplay_abort() {
+	netplay.elf --cleanup >> "$LOGS_PATH/netplay-wizard.txt" 2>&1
+	nx_psp_netplay_cleanup
+	exit 0
 }
 
 # 1 -> 01, ... 9 -> 09, 10 -> 10: the core option suffixes are two digits.

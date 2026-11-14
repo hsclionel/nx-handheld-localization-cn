@@ -119,6 +119,8 @@ static int parse_args(int argc, char** argv, WizArgs* a) {
 		} else if (strcmp(arg, "--fetch-files") == 0 && has_value) {
 			if (parse_patterns(argv[++i], a) != 0)
 				return -1;
+		} else if (strcmp(arg, "--open-host") == 0 && has_value) {
+			a->open_host = argv[++i];
 		} else if (strcmp(arg, "--max-players") == 0 && has_value) {
 			a->max_players = atoi(argv[++i]);
 			if (a->max_players < 2)
@@ -784,9 +786,12 @@ static int run_cleanup(const WizArgs* a) {
 // Screens
 //////////////////////////////////
 
-#define WIZ_ROLE_ITEMS 2
+// The third row ("Host for PC/Phone") exists only with --open-host; main()
+// sets role_count to 3 then.
+#define WIZ_ROLE_OPEN_HOST 2
+static int role_count = 2;
 
-static const char* role_items[] = {"Host Game", "Join Game"};
+static const char* role_items[] = {"Host Game", "Join Game", "Host for PC/Phone"};
 static const char* mode_items[] = {"USB Cable", "Hotspot", "WiFi"};
 // session.mode key per mode_items row; keep both arrays in the same order.
 static const char* mode_keys[] = {"usb", "hotspot", "wifi"};
@@ -815,7 +820,7 @@ static void render_role_menu(const char* game) {
 	ListView* v = &wiz_menu_view;
 	v->title = game;
 	v->font = font.large;
-	v->count = WIZ_ROLE_ITEMS;
+	v->count = role_count;
 	v->get_row = wiz_menu_get_row;
 	v->ctx = (void*)role_items;
 	v->list_id = (const void*)role_items;
@@ -898,6 +903,8 @@ int main(int argc, char* argv[]) {
 	if (args.cleanup)
 		return run_cleanup(&args);
 
+	if (args.open_host && args.open_host[0])
+		role_count = 3;
 	shown_count = WizModes_rows(args.modes, shown_rows);
 	for (int k = 0; k < shown_count; k++)
 		shown_items[k] = mode_items[shown_rows[k]];
@@ -951,6 +958,8 @@ int main(int argc, char* argv[]) {
 	WizState state = ST_ROLE;
 	int role_selected = 0;
 	int mode_selected = 0;
+	// "Host for PC/Phone": WiFi only, no mode menu, no peer handshake.
+	bool open_host = false;
 	// Anything that is not a completed session (including a signal) means
 	// "launch the game without netplay"; only ST_DONE clears this to 0.
 	int exit_code = 1;
@@ -960,7 +969,7 @@ int main(int argc, char* argv[]) {
 	// Initial ST_ROLE entry. Every later entry into ST_ROLE/ST_MODE resets the
 	// shared view the same way (in the transition arms below) and restores that
 	// state's saved cursor.
-	UI_listViewReset(&wiz_menu_view, WIZ_ROLE_ITEMS, role_items);
+	UI_listViewReset(&wiz_menu_view, role_count, role_items);
 	wiz_menu_view.selected = role_selected;
 
 	while (!app_quit) {
@@ -976,14 +985,22 @@ int main(int argc, char* argv[]) {
 			ListViewAction act = UI_listViewHandleInput(&wiz_menu_view);
 			if (act.type == LISTVIEW_ACTIVATED) {
 				role_selected = wiz_menu_view.selected;
-				strcpy(session.role, act.index == 0 ? "host" : "client");
-				if (act.index == 0) {
+				open_host = (act.index == WIZ_ROLE_OPEN_HOST);
+				strcpy(session.role, act.index == 1 ? "client" : "host");
+				if (act.index != 1) {
 					session.player_num = 1;
 					session.num_players = 2;
 				}
-				state = ST_MODE;
-				UI_listViewReset(&wiz_menu_view, shown_count, shown_items);
-				wiz_menu_view.selected = mode_selected;
+				if (open_host) {
+					// The other side is a stock emulator: it can only reach us
+					// over a shared network, so WiFi it is.
+					strcpy(session.mode, "wifi");
+					state = ST_NETSETUP;
+				} else {
+					state = ST_MODE;
+					UI_listViewReset(&wiz_menu_view, shown_count, shown_items);
+					wiz_menu_view.selected = mode_selected;
+				}
 				dirty = true;
 			} else if (act.type == LISTVIEW_BACK) {
 				role_selected = wiz_menu_view.selected;
@@ -1005,7 +1022,7 @@ int main(int argc, char* argv[]) {
 			} else if (act.type == LISTVIEW_BACK) {
 				mode_selected = wiz_menu_view.selected;
 				state = ST_ROLE;
-				UI_listViewReset(&wiz_menu_view, WIZ_ROLE_ITEMS, role_items);
+				UI_listViewReset(&wiz_menu_view, role_count, role_items);
 				wiz_menu_view.selected = role_selected;
 				dirty = true;
 			}
@@ -1032,9 +1049,16 @@ int main(int argc, char* argv[]) {
 			// network is saved by then.
 			if (rc == -2) {
 				wiz_cancel(&session);
-				state = ST_MODE;
-				UI_listViewReset(&wiz_menu_view, shown_count, shown_items);
-				wiz_menu_view.selected = mode_selected;
+				if (open_host) {
+					// it skipped the mode menu, so B goes back to the roles
+					state = ST_ROLE;
+					UI_listViewReset(&wiz_menu_view, role_count, role_items);
+					wiz_menu_view.selected = role_selected;
+				} else {
+					state = ST_MODE;
+					UI_listViewReset(&wiz_menu_view, shown_count, shown_items);
+					wiz_menu_view.selected = mode_selected;
+				}
 			} else if (rc != 0) {
 				wiz_cancel(&session);
 				exit_code = 2;
@@ -1047,17 +1071,24 @@ int main(int argc, char* argv[]) {
 		}
 
 		case ST_RENDEZVOUS: {
-			int rc = (strcmp(session.role, "host") == 0)
-						 ? wiz_host_rendezvous(&args, &session)
-						 : wiz_client_rendezvous(&args, &session);
+			int rc = open_host							 ? wiz_open_host_wait(&args, &session)
+					 : (strcmp(session.role, "host") == 0) ? wiz_host_rendezvous(&args, &session)
+														   : wiz_client_rendezvous(&args, &session);
 
 			// Both failure arms undo the ST_NETSETUP work first — by here a
 			// hotspot host has an AP up and both roles may have an rsyncd.
 			if (rc == -2) {
 				wiz_cancel(&session);
-				state = ST_MODE;
-				UI_listViewReset(&wiz_menu_view, shown_count, shown_items);
-				wiz_menu_view.selected = mode_selected;
+				if (open_host) {
+					// it skipped the mode menu, so B goes back to the roles
+					state = ST_ROLE;
+					UI_listViewReset(&wiz_menu_view, role_count, role_items);
+					wiz_menu_view.selected = role_selected;
+				} else {
+					state = ST_MODE;
+					UI_listViewReset(&wiz_menu_view, shown_count, shown_items);
+					wiz_menu_view.selected = mode_selected;
+				}
 			} else if (rc != 0) {
 				wiz_cancel(&session);
 				exit_code = 2;

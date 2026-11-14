@@ -212,11 +212,14 @@ through PPSSPP core options.
   `62b5c81`.
 - Checkpoints (local only): `~/workspace/nx-psp-adhoc/checkpoints/
   phase{1,2,3}-*.md`.
-- No draft PR was opened for the feature branch — that step is still owed.
+- Draft PR: [#4](https://github.com/hsclionel/nx-handheld-localization-cn/pull/4)
+  ("[Draft] PSP Ad-Hoc Co-op: Host/Join wizard (Phase 1-3)", opened
+  2026-11-14 01:02 +08).
 
 ### What remains
 
-- Open the draft PR for `feature/psp-adhoc-netplay` (do not merge).
+- Draft PR #4 is open — review it when ready (do not merge until the
+  device checks pass).
 - Device build check: `ma_config.c` / `ma_menu.c` do not compile on the
   host (minarch needs SDL2 + device platform headers); the edits follow
   the existing code line-for-line but are uncompiled.
@@ -224,9 +227,14 @@ through PPSSPP core options.
   Tag Force / MHFU / Tekken 6) — needs real hardware, not done.
 - Phase 4 (public relay) deferred as planned.
 
-### Why it stopped
+### How it finished (corrected 2026-11-14 ~01:05 +08)
 
 The retry run produced the three phase checkpoints and the commit
-(2026-11-13 22:05 +08), and the branch reached origin at 2026-11-14
-00:38 +08 (snapshot sync), but it wrote no retry status and no briefing
-file and opened no draft PR — the run ended before its final steps.
+(2026-11-13 22:05 +08), the branch reached origin at 2026-11-14
+00:38 +08 (snapshot sync), and draft PR #4 was opened at 01:02 +08 —
+the run finished past its 23:30 wrap-up target because GitHub write
+approvals waited and the first push attempt was interrupted by a
+service restart. This fallback check started at 00:43 +08, before the
+PR existed, so an earlier version of this section wrongly said no PR
+had been opened; that has been corrected here. The retry's own status
+and briefing file were written at ~01:00 +08.

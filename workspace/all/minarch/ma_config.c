@@ -1313,8 +1313,8 @@ static void Config_forceSessionOption(void) {
 		Option* option = OptionList_getOption(&config.core, session_keys[i]);
 		if (!option)
 			continue; // the core has not registered its options yet; a later read applies it
-		if (config.user_cfg)
-			session_user_values[i] = option->value; // this re-read just left the user's choice
+		if (config.user_cfg || session_user_values[i] < 0)
+			session_user_values[i] = option->value; // the user's cfg value, or the default when there is no cfg
 		OptionList_setOptionValue(&config.core, session_keys[i], session_values[i]);
 		option->lock = 1;
 	}

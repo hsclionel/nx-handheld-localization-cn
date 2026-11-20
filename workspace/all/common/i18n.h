@@ -38,7 +38,7 @@ const char* I18N_langCode(int lang);
 
 // Load the dictionary at `path` as the active one; NULL or an unreadable file
 // leaves English (no dictionary). Returns the number of entries loaded
-// (plain + pattern). Safe to call while other threads call I18N_tr: the old
+// (plain + pattern + prefix). Safe to call while other threads call I18N_tr: the old
 // table is retired, not freed.
 int I18N_loadFile(const char* path);
 
@@ -378,7 +378,7 @@ int I18N_loadFile(const char* path) {
 		return 0;
 	}
 	i18n_set(t);
-	return t->count + t->pattern_count;
+	return t->count + t->pattern_count + t->prefix_count;
 }
 
 int I18N_isActive(void) {

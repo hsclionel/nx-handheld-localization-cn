@@ -69,7 +69,7 @@ int main(void) {
 			   "\n"
 			   "BRIGHTNESS\t亮度2\n");
 	int n = I18N_loadFile(path);
-	assert(n == 3 + 8); // 3 plain (one repeated key counts once) + 8 usable patterns
+	assert(n == 3 + 8 + 3); // 3 plain (one repeated key counts once) + 8 usable patterns + 3 prefixes
 	assert(I18N_isActive());
 
 	eq(I18N_tr("BRIGHTNESS"), "亮度2"); // later line wins
@@ -118,6 +118,7 @@ int main(void) {
 		assert(0);
 	}
 	eq(I18N_tr("45s"), "45秒");
+	eq(I18N_tr("Videos | Holiday 2026"), "视频 | Holiday 2026"); // prefix entry from the shipped file
 	eq(I18N_tr("Unlocked 2026-11-12 (pending sync)"), "已解锁 2026-11-12（待同步）");
 	eq(I18N_tr("Select the fan speed percentage (Quiet/Normal/Performance or 0-100%)"),
 	   "选择风扇速度百分比（安静/标准/高性能或 0-100%）");

@@ -66,6 +66,8 @@ run() {
 }
 
 run run_tests.sh sh workspace/all/common/tests/run_tests.sh
+# zh_CN.lang vs the sources: fails on stale entries; untranslated candidates are listed, never fail
+run i18n_dict_check python3 scripts/tests/i18n_dict_check.py --untranslated
 for t in $HOST_SHELL_TESTS; do
 	run "$t" bash "scripts/tests/$t"
 done

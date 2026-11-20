@@ -9,6 +9,8 @@
 #   wifi-connect-e2e
 # - fail to build under gcc 14 -Werror (format-truncation in their own cc lines): archive-cache, art-style,
 #   media-tools-unit, rewind-budget, scraper-variants
+# - button-layout-sh: sources the helper under `sh -c 'set -o pipefail'` like the device's busybox; Ubuntu
+#   24.04's dash has no pipefail (Debian 13's does), so it fails on the CI runner only
 # - fail on a host for other reasons, to be looked at separately: boot-update-zip-check, cheatdb-data,
 #   dc-netplay-sh, extras-gen1recomp-install, extras-portmaster-catalogs, extras-portmaster-install,
 #   menu-animations, patch-osdd-layout, portmaster-launch
@@ -21,7 +23,6 @@ test-apply-patches.sh
 test-artfetch-sh.sh
 test-audiomon-bt-disconnect.sh
 test-audiomon-spk-guard.sh
-test-button-layout-sh.sh
 test-cheat-match.sh
 test-cheat-mem.sh
 test-cpu-policy.sh

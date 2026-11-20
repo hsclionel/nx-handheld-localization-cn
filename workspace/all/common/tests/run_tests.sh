@@ -2,6 +2,9 @@
 # Host-side unit tests for common/. No SDL, no cross toolchain.
 set -eu
 cd "$(dirname "$0")"
+# gcc >= 8 flags snprintf into fixed buffers as "may be truncated" (-Wformat-truncation, part of -Wall).
+# The tests build short /tmp paths, and -Werror turns the false positives into build failures on newer gcc.
+cc() { command "${CC:-cc}" -Wno-format-truncation "$@"; }
 # Compile and run on separate lines: set -e ignores a failure on the left of &&, so a test that
 # fails to compile would otherwise be skipped silently.
 cc -std=gnu99 -Wall -Werror -o /tmp/nx_test_xtras_compat ../../extras/xtras_compat.c test_xtras_compat.c

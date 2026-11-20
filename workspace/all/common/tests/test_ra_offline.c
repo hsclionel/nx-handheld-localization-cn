@@ -1,7 +1,7 @@
 // Host-side tests for ra_offline.c
 // Build+run:
-//   cd workspace/all/common/tests && mkdir -p build && \
-//   cc -std=gnu99 -Wall -o build/test_ra_offline test_ra_offline.c ../ra_offline.c -I.. && \
+//   cd workspace/all/common/tests && mkdir -p build &&
+//   cc -std=gnu99 -Wall -o build/test_ra_offline test_ra_offline.c ../ra_offline.c -I.. &&
 //   ./build/test_ra_offline
 
 #include "ra_offline.h"

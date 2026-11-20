@@ -1,0 +1,6 @@
+# Dictionary entries whose English text is only ever built at run time, so it never appears whole in
+# the sources. scripts/tests/i18n_dict_check.py skips these in its stale check.
+# Format: English key (as in zh_CN.lang, C escapes)<TAB>reason. Every entry needs a reason.
+Options | Core Options	UI_pageTitle("Options", "Core Options") in ma_menu.c builds this page title
+Unlocked (pending sync)	ratools_browser.c: "Unlocked%s" with " (pending sync)" when there is no unlock date
+^Videos | 	ui_player.c: UI_pageTitle("Videos", <folder>) builds "Videos | <folder>"; the folder name stays as is
